@@ -1,7 +1,6 @@
 {
-  "routes": [
-    {
-      "route": "/*"
-    }
-  ]
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/authentication/*"]
+  }
 }
