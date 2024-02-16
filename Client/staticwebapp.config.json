@@ -1,6 +1,6 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/authentication/*"]
+    "exclude": ["*.{css,scss,js}"]
   }
 }
