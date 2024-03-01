@@ -8,7 +8,7 @@
     private LineChartOptions lineChartOptions = default!;
     private ChartData chartData = default!;
 
-    public List<string> getXAxisLabels()
+    public List<string> GetXAxisLabels()
     {
         List<string> labels = new List<string>();
 
@@ -30,11 +30,28 @@
         return labels;
     }
 
+    public List<int> GetYAxisLabels()
+    {
+        List<int> labels = new List<int>();
+
+        int currentMonth = DateTime.Now.Month;
+        for(int i = 0; i < 12; i++)
+        {
+            if(currentMonth == 12)
+            {
+                currentMonth = 0;
+            }
+            labels.Add(AccountInfo.PastYearInvestments[currentMonth]);
+        }
+
+        return labels;
+    }
+
     protected override void OnInitialized()
     {
         var colors = ColorBuilder.CategoricalTwelveColors;
 
-        var labels = getXAxisLabels();
+        var labels = GetXAxisLabels();
         var datasets = new List<IChartDataset>();
 
         var dataset1 = new LineChartDataset()
@@ -51,7 +68,7 @@
             };
         datasets.Add(dataset1);
 
-        
+
 
         chartData = new ChartData
             {
@@ -81,4 +98,7 @@
         }
         await base.OnAfterRenderAsync(firstRender);
     }
+
+    [Parameter]
+    public AccountInformation AccountInfo { get; set; } 
 }
