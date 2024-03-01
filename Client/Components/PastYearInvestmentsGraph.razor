@@ -1,0 +1,84 @@
+﻿@using BlazorBootstrap
+@using Color = System.Drawing.Color
+
+<LineChart @ref="lineChart" Width="800"  Class="mb-4" />
+
+@code {
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+
+    public List<string> getXAxisLabels()
+    {
+        List<string> labels = new List<string>();
+
+        int currentYear = DateTime.Now.Year;
+        currentYear--;
+
+        DateTime now = DateTime.Now;
+        for(int i = 0; i < 12; i++)
+        {
+            if(now.ToString("MMMM") == "January" && (i != 0))
+            {
+                currentYear++;
+            }
+
+            labels.Add(now.ToString("MMMM") + " " + currentYear);
+            now = now.AddMonths(1);
+        }
+
+        return labels;
+    }
+
+    protected override void OnInitialized()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+
+        var labels = getXAxisLabels();
+        var datasets = new List<IChartDataset>();
+
+        var dataset1 = new LineChartDataset()
+            {
+                Label = "All Accounts Combined",
+                Data = new List<double> { 7000, 9500, 10700, 11100, 12315, 13200, 14900, 15300, 16000, 19000, 21600, 23715 },
+                BackgroundColor = new List<string> { colors[0] },
+                BorderColor = new List<string> { colors[0] },
+                BorderWidth = new List<double> { 2 },
+                HoverBorderWidth = new List<double> { 4 },
+                PointBackgroundColor = new List<string> { colors[0] },
+                PointRadius = new List<int> { 0 }, // hide points
+                PointHoverRadius = new List<int> { 4 },
+            };
+        datasets.Add(dataset1);
+
+        
+
+        chartData = new ChartData
+            {
+                Labels = labels,
+                Datasets = datasets
+            };
+
+        lineChartOptions = new();
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+        lineChartOptions.Scales.X.Title.Text = "Month and Year";
+        lineChartOptions.Scales.X.Title.Display = true;
+
+        lineChartOptions.Scales.Y.Title.Text = "Amount in $";
+        lineChartOptions.Scales.Y.Title.Display = true;
+
+        lineChartOptions.Plugins.Title.Text = "Investments Over the Past Year";
+        lineChartOptions.Plugins.Title.Display = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}
