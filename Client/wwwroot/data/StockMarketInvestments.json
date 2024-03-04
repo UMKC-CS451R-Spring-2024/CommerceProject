@@ -1,0 +1,19 @@
+{
+  "investments": [
+    {
+      "investment_name": null,
+      "ticker_symbol": null,
+      "returns": {
+        "1_year": null,
+        "5_year": null,
+        "10_year": null,
+        "15_year": null,
+        "20_year": null,
+        "25_year": null,
+        "average_return_ytd": null
+      },
+      "date_updated": null,
+      "currency": null
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+﻿@using BlazorBootstrap
+@using Color = System.Drawing.Color
+
+<LineChart @ref="lineChart" Width="800" Class="mb-4" />
+
+@code {
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+    private Random random = new Random();
+
+    protected override void OnInitialized()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+
+        chartData = new ChartData
+            {
+                Labels = new List<string> { "1 Year", "5 Years", "10 Years", "15 Years", "20 Years", "25 Years" },
+                Datasets = new List<IChartDataset>
+            {
+                new LineChartDataset
+                {
+                    Label = "Investment Returns",
+                    Data = GenerateRandomReturns(), // Generate random data for the chart
+                    BackgroundColor = new List<string> { colors[0] },
+                    BorderColor = new List<string> { colors[0] },
+                    BorderWidth = new List<double> { 2 },
+                    HoverBorderWidth = new List<double> { 4 },
+                    PointBackgroundColor = new List<string> { colors[0] },
+                    PointRadius = new List<int> { 3 },
+                    PointHoverRadius = new List<int> { 5 },
+                }
+            }
+            };
+
+        lineChartOptions = new();
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+        lineChartOptions.Scales.X.Title.Text = "Investment Period";
+        lineChartOptions.Scales.X.Title.Display = true;
+
+        lineChartOptions.Scales.Y.Title.Text = "Return in $";
+        lineChartOptions.Scales.Y.Title.Display = true;
+
+        lineChartOptions.Plugins.Title.Text = "Investment Returns Over Time";
+        lineChartOptions.Plugins.Title.Display = true;
+    }
+
+    private List<double> GenerateRandomReturns()
+    {
+        // Generate random returns for the specified investment periods
+        var investmentPeriods = new List<string> { "1 Year", "5 Years", "10 Years", "15 Years", "20 Years", "25 Years" };
+        return investmentPeriods.Select(_ => random.NextDouble() * 10000).ToList(); // Example: returns ranging from 0 to 10000
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}
+}
