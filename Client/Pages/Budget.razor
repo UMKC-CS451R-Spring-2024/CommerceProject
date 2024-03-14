@@ -1,0 +1,119 @@
+@page "/budget"
+
+<div class="container my-4">
+    <h2 class="text-center mb-4">The 50/30/20 budget</h2>
+    <p class="text-center mb-4">Find out how this budgeting approach applies to your money.</p>
+    <hr class="mb-4">
+
+    <!-- Input for Monthly Income -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-6">
+            <label for="monthlyIncome" class="form-label">Monthly after-tax income</label>
+            <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input @bind="income" type="number" class="form-control" id="monthlyIncome" placeholder="0">
+                <button @onclick="CalculateBudget" class="btn btn-outline-secondary">Calculate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display of Budget Categories -->
+    <h4 class="mb-3">Your 50/30/20 numbers:</h4>
+    <div class="row text-center">
+        <div class="container my-5">
+            <div class="card-group">
+                <div class="card budget-needs-box m-2">
+                    <div class="card-header budget-needs-header text-white">Needs</div>
+                    <div class="card-body">
+                        <h5 class="card-title">50% of budget</h5>
+                        <p class="card-text">@needsAmount.ToString("C")</p>
+                    </div>
+                    <div class="card-footer text-muted">Essentials like rent, bills and groceries</div>
+                </div>
+                <div class="card budget-wants-box m-2">
+                    <div class="card-header budget-wants-header text-white">Wants</div>
+                    <div class="card-body">
+                        <h5 class="card-title">30% of budget</h5>
+                        <p class="card-text">@wantsAmount.ToString("C")</p>
+                    </div>
+                    <div class="card-footer text-muted">Lifestyle choices</div>
+                </div>
+                <div class="card budget-savings-box m-2">
+                    <div class="card-header budget-savings-header text-white">Savings/Investing</div>
+                    <div class="card-body">
+                        <h5 class="card-title">20% of budget</h5>
+                        <p class="card-text">@savingsAmount.ToString("C")</p>
+                    </div>
+                    <div class="card-footer text-muted">Future planning - savings, retirement, and investing</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private double income;
+    private double needsAmount => Math.Round(income * 0.50, 2);
+    private double wantsAmount => Math.Round(income * 0.30, 2);
+    private double savingsAmount => Math.Round(income * 0.20, 2);
+
+    private void CalculateBudget()
+    {
+        // This method is intentionally left empty.
+        // The budget calculation is automatically triggered by the property getters
+        // when 'income' is updated.
+    }
+}
+
+@* <div class="budget-page-background p-3">
+    <h3 class="text-center">Budgeting using the 50-30-20 Rule</h3> <!-- Corrected class placement -->
+
+    <div class="input-group mb-3">
+        <span class="input-group-text">$</span>
+        <input @bind="income" type="number" class="form-control" placeholder="Enter your monthly income">
+        <button class="btn btn-outline-secondary" type="button" @onclick="CalculateBudget">Calculate</button>
+    </div>
+
+    <div class="container my-5">
+        <div class="card-group">
+            <div class="card budget-needs-box m-2">
+                <div class="card-header budget-needs-header text-white">Needs</div>
+                <div class="card-body">
+                    <h5 class="card-title">50% of budget</h5>
+                    <p class="card-text">@needsAmount.ToString("C")</p>
+                </div>
+                <div class="card-footer text-muted">Essentials like rent, bills and groceries</div>
+            </div>
+            <div class="card budget-wants-box m-2">
+                <div class="card-header budget-wants-header text-white">Wants</div>
+                <div class="card-body">
+                    <h5 class="card-title">30% of budget</h5>
+                    <p class="card-text">@wantsAmount.ToString("C")</p>
+                </div>
+                <div class="card-footer text-muted">Lifestyle choices</div>
+            </div>
+            <div class="card budget-savings-box m-2">
+                <div class="card-header budget-savings-header text-white">Savings/Investing</div>
+                <div class="card-body">
+                    <h5 class="card-title">20% of budget</h5>
+                    <p class="card-text">@savingsAmount.ToString("C")</p>
+                </div>
+                <div class="card-footer text-muted">Future planning - savings, retirement, and investing</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private double income;
+    private double needsAmount => income * 0.50;
+    private double wantsAmount => income * 0.30;
+    private double savingsAmount => income * 0.20;
+
+    private void CalculateBudget()
+    {
+        // Triggered when the Calculate button is clicked.
+        // The budget is automatically recalculated.
+    }
+}
+ *@
