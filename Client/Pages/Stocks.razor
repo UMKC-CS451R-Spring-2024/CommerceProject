@@ -1,0 +1,83 @@
+﻿@page "/stocks"
+@using System.Text.Json;
+@using System.Net;
+@using Newtonsoft.Json;
+@inject HttpClient httpClient
+
+<h1>Stocks</h1>
+
+<input class="form-control mr-sm-2" type="search" placeholder="Enter Stock Ticker" aria-label="Search" @bind-value="searchQuery" @bind-value:event="oninput" />
+<br />
+<button type="button" class="btn btn-primary" @onclick="getDailyStockData">Search</button>
+<br />
+
+@if(searchResults != null)
+{
+    <h1>Results</h1>
+
+    @for(int i = 0; i < searchResults.BestMatches.Length; i++)
+    {
+        <div class="card" style="width: 20rem">
+            <div class="card-body">
+                <h3 class="card-title"><b>@searchResults.BestMatches[i].Name</b></h3>
+                <h6><u>Symbol:</u> @searchResults.BestMatches[i].Symbol</h6>
+                <h6><u>Type:</u> @searchResults.BestMatches[i].Type</h6>
+                <h6><u>Region:</u> @searchResults.BestMatches[i].Region</h6>
+                <h6><u>Market Open:</u> @searchResults.BestMatches[i].MarketOpen</h6>
+                <h6><u>Market Close:</u> @searchResults.BestMatches[i].MarketClose</h6>
+                <h6><u>Timezone:</u> @searchResults.BestMatches[i].Timezone</h6>
+                <h6><u>Currency:</u> @searchResults.BestMatches[i].Currency</h6>
+            </div>
+        </div>
+
+        <br />
+    }
+
+}
+@code {
+    string apiKey = "KRY4J4J7NUX3OZG8";
+    string searchQuery = "";
+    string url = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=tesco&apikey=demo";
+
+    private StockSearchInfo? searchResults;
+
+    public List<StockSearchInfo> listOfSearchResults = new List<StockSearchInfo>(); 
+
+    public  async void getDailyStockData()
+    {
+
+        if (!searchQuery.Equals(""))
+        {
+            url = $"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={searchQuery}&apikey={apiKey}";
+
+            using (HttpClient http = new HttpClient())
+            {
+                HttpResponseMessage response = await http.GetAsync(url);
+
+                // Ensure the response was successful
+                response.EnsureSuccessStatusCode();
+
+                // Read the content of the response as a string
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                // Print the JSON data
+                Console.WriteLine(responseBody);
+
+                searchResults = JsonConvert.DeserializeObject<StockSearchInfo>(responseBody);
+
+                Console.WriteLine(searchResults.BestMatches[0].Symbol);
+
+
+            }
+            
+        }
+
+        
+
+        
+    }
+
+
+    
+
+}

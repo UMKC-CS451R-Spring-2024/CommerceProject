@@ -1,7 +1,7 @@
 ﻿@using BlazorBootstrap
 @using Color = System.Drawing.Color
 
-<LineChart @ref="lineChart" Width="800"  Class="mb-4" />
+<LineChart @ref="lineChart" Width="400"  Class="mb-4" />
 
 @code {
     private LineChart lineChart = default!;
@@ -12,19 +12,11 @@
     {
         List<string> labels = new List<string>();
 
-        int currentYear = DateTime.Now.Year;
-        currentYear--;
-
-        DateTime now = DateTime.Now;
-        for(int i = 0; i < 12; i++)
+        for(int i = 15; i >= 0; i--)
         {
-            if(now.ToString("MMMM") == "January" && (i != 0))
-            {
-                currentYear++;
-            }
-
-            labels.Add(now.ToString("MMMM") + " " + currentYear);
-            now = now.AddMonths(1);
+            //Remove the date from the timestamp
+            string timestampWithNoDate = StockDataList[i].Timestamp.Substring(StockDataList[i].Timestamp.IndexOf(" ") + 1);
+            labels.Add(timestampWithNoDate);
         }
 
         return labels;
@@ -34,16 +26,11 @@
     {
         List<double> labels = new List<double>();
 
-        int currentMonth = DateTime.Now.Month;
-        for(int i = 0; i < 12; i++)
+        for (int i = 15; i >= 0; i--)
         {
-            if(currentMonth == 12)
-            {
-                currentMonth = 0;
-            }
-            labels.Add(AccountInfo.PastYearInvestments[currentMonth]);
-            currentMonth++;
+            labels.Add(StockDataList[i].Open);
         }
+
 
         return labels;
     }
@@ -57,8 +44,8 @@
 
         var dataset1 = new LineChartDataset()
             {
-                Label = "All Accounts Combined",
-                Data =  GetYAxisLabels() ,
+                Label = "Opening Stock Price By The Hour",
+                Data = GetYAxisLabels(),
                 BackgroundColor = new List<string> { colors[0] },
                 BorderColor = new List<string> { colors[0] },
                 BorderWidth = new List<double> { 2 },
@@ -81,13 +68,15 @@
         lineChartOptions.Responsive = true;
         lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
 
-        lineChartOptions.Scales.X.Title.Text = "Month and Year";
+        lineChartOptions.Scales.X.Title.Text = "03-06-24";
         lineChartOptions.Scales.X.Title.Display = true;
 
-        lineChartOptions.Scales.Y.Title.Text = "Amount in $";
+        lineChartOptions.Scales.Y.Title.Text = "Stock Price USD";
         lineChartOptions.Scales.Y.Title.Display = true;
+        lineChartOptions.Scales.Y.Max = 200;
+        lineChartOptions.Scales.Y.Min = 150;
 
-        lineChartOptions.Plugins.Title.Text = "Investments Over the Past Year";
+        lineChartOptions.Plugins.Title.Text = "Stock price for Amazon";
         lineChartOptions.Plugins.Title.Display = true;
     }
 
@@ -101,5 +90,5 @@
     }
 
     [Parameter]
-    public AccountInformation AccountInfo { get; set; } 
+    public List<StockData> StockDataList {get; set;}
 }

@@ -1,5 +1,8 @@
 ﻿@page "/dashboard"
 @inject HttpClient Http
+@using CsvHelper;
+@using System.Globalization;
+
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -87,10 +90,14 @@ else
 
         </div> <!-- Account Activity card-->
 
-        <div class="card" style="width: 18rem;">
+        <div class="card" style="width: 28rem;">
             <div class="card-body">
                 <h5 class="card-title">Stocks</h5>
-                <button type="button" class="btn btn-primary card-link">View Stocks and Market Activity</button>
+                <h1>AMZN</h1>
+                <Client.Components.SampleStockGraph StockDataList="stockDataList"/>
+                <NavLink href="stocks">
+                    <button type="button" class="btn btn-primary card-link">View Stocks and Market Activity</button>
+                </NavLink>
             </div>
         </div>
 
@@ -109,12 +116,63 @@ else
 
 
 @code {
+
     private AccountInformation[]? userAccounts;
+
+    private string stockDataInfo;
+
+    public List<StockData> stockDataList = new List<StockData>();
+
 
     protected override async Task OnInitializedAsync()
     {
-        userAccounts = await Http.GetFromJsonAsync<AccountInformation[]>("sample-data/accountMockData.json");
+        userAccounts = await Http.GetFromJsonAsync<AccountInformation[]>("sample-data/accountMockData.json").ContinueWith(task => userAccounts = task.Result);
+        stockDataInfo = await Http.GetStringAsync("sample-data/intraday_60min_AMZN.csv");
+
+        List<string> stockRows = stockDataInfo.Split("\n").ToList();
+
+        /*
+        foreach (string s in stockRows)
+        {
+            Console.WriteLine(s);
+        }
+        */
+
+        for (int i = 0; i < stockRows.Count - 1; i++)
+        {
+            if (i > 0)
+            {
+                List<string> stockStringList = stockRows[i].Split(",").ToList();
+
+                
+                Console.WriteLine(stockStringList[1]);
+                
+                Console.WriteLine();
+
+                StockData stockInfo = new StockData {
+                        Timestamp = stockStringList[0],
+                        Symbol = "AMZN",
+                        Open = Double.Parse(stockStringList[1]),
+                        High = Double.Parse(stockStringList[2]),
+                        Low = Double.Parse(stockStringList[3]),
+                        Close = Double.Parse(stockStringList[4]),
+                        Volume = Int32.Parse(stockStringList[5]),
+                };
+                stockDataList.Add(stockInfo);
+            }
+        }
+
+        /*
+        foreach(StockData sd in stockDataList)
+        {
+            Console.WriteLine(sd.Timestamp);
+        }
+        */
+
     }
+    
+    
+   
 
     public double GetTotalInvestedAmount(AccountInformation userAccount)
     {
@@ -126,7 +184,53 @@ else
         }
 
         return total;
+
     }
+
+
+
+
+
+    /*
+    //For getting sample stock data
+    public async List<StockData> RetrieveStockData()
+    {
+        List<StockData> stockDataList = new List<StockData>();
+
+        //System.Diagnostics.Debug.WriteLine( Directory.GetCurrentDirectory());
+        //System.Diagnostics.Debug.WriteLine("fsdfsdfsdfsdfasf");
+
+
+        using (StreamReader reader = await new StreamReader(Http.GetStreamAsync("sample-data/intraday_60min_AMZN.csv")))
+        using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+        {
+
+
+            csv.Read();
+            csv.ReadHeader();
+            while (csv.Read())
+            {
+                //Get data off of CSV into stockData
+                StockData stockData = new StockData
+                    {
+                        Timestamp = DateTime.Parse(csv.GetField<string>("timestamp")).ToString("HH-mm tt"),
+                        Symbol = "AMZN",
+                        Open = csv.GetField<double>("open"),
+                        High = csv.GetField<double>("high"),
+                        Low = csv.GetField<double>("low"),
+                        Close = csv.GetField<double>("close"),
+                        Volume = csv.GetField<int>("volume"),
+                    };
+
+            }
+
+        }
+        return stockDataList;
+
+
+    }
+    */
+
 
    
 
