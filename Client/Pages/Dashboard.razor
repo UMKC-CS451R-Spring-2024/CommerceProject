@@ -1,104 +1,239 @@
 ﻿@page "/dashboard"
 
+@inject HttpClient Http
+@using CsvHelper;
+@using System.Globalization;
+
+
+
 <PageTitle>Dashboard</PageTitle>
 
 
-<div class="jumbotron">
-  <h1 class="display-4">Hello, (Insert User Name Here)</h1>
-  <hr class="my-4">
-  <h1> <span class="badge bg-secondary">Total Investments: $23,715</span></h1>
-  <br />
 
-  <h2>Accounts:</h2>
-  <div class="account-table-and-graph">
-    <table class="account-table table table-borderless">
-            <tbody class="account-table">
-                <tr>
-                    <th style="background-color: rgb(240,240,240);" scope="row"></th>
-                    <td style="background-color: rgb(240,240,240);">Brockerage Account <br />****9897</td>
-                    <td style="background-color: rgb(240,240,240);">$12,000</td>
-                </tr>
-                <tr>
-                    <th scope="row" style="background-color: rgb(240,240,240);"></th>
-                    <td style="background-color: rgb(240,240,240);"> Roth IRA <br />****3721</td>
-                    <td style="background-color: rgb(240,240,240);" >$11,715</td>
-                </tr>
-            </tbody>
-    </table>
+@if(userAccounts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="jumbotron">
+        <h1 class="display-4">Hello, @userAccounts[0].AccountName</h1>
+        <hr class="my-4">
+        <h1> <span class="badge bg-secondary">Total Investments: $@GetTotalInvestedAmount(userAccounts[0]).ToString("N0")</span></h1>
+        <br />
 
-    <div class="d-flex" style="height: 250px;">
-        <div class="vr"></div>
-    </div>
-
-    <Client.Components.PastYearInvestmentsGraph />
-
-  </div>
-
-  
-
-  <div class="accounts-button">
-    <button type="button" class="btn btn-primary">View Accounts</button>
-  </div>
-
-</div> <!--jumbtron class-->
-
-<br /><br />
-
-<div class="bottom-half-cards">
-
-    <div class="card" >
-        <div class="card-body">
-            <h5 class="card-title">Account Activity</h5>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Date</th>
-                        <th scope="col">Account</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">1/12/24</th>
-                        <td>Roth IRA</td>
-                        <td>Program Fee</td>
-                        <td>-$25.00</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">1/31/24</th>
-                        <td>Roth IRA</td>
-                        <td>Monthly Contribution</td>
-                        <td>$500.00</td>
-                    </tr>
+        <h2>Accounts:</h2>
+        <div class="account-table-and-graph">
+            <table class="account-table table table-borderless">
+                <tbody class="account-table">
+                    @foreach(Accounts account in userAccounts[0].Accounts)
+                    {
+                        <tr>
+                            <th style="background-color: rgb(240,240,240);" scope="row"></th>
+                            <td style="background-color: rgb(240,240,240);">@account.AccountType <br />@account.AccountNumber</td>
+                            <td style="background-color: rgb(240,240,240);">$@account.AccountAmount.ToString("N0")</td>
+                        </tr>
+                        
+                    }
                     
                 </tbody>
             </table>
-            <button type="button" class="btn btn-primary card-link">View Activity</button>
-        </div>
-        
-    </div> <!-- Account Activity card-->
 
-    <div class="card" style="width: 18rem;">
-        <div class="card-body">
-            <h5 class="card-title">Stocks</h5>
-            <button type="button" class="btn btn-primary card-link">View Stocks and Market Activity</button>
+            <div class="d-flex" style="height: 250px;">
+                <div class="vr"></div>
+            </div>
+
+            <Client.Components.PastYearInvestmentsGraph AccountInfo="userAccounts[0]" />
+
         </div>
+
+
+
+        <div class="accounts-button">
+            <button type="button" class="btn btn-primary">View Accounts</button>
+        </div>
+
+    </div> <!--jumbtron class-->
+
+    <br />
+    <br />
+
+    <div class="bottom-half-cards">
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Account Activity</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Account</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">1/12/24</th>
+                            <td>Roth IRA</td>
+                            <td>Program Fee</td>
+                            <td>-$25.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">1/31/24</th>
+                            <td>Roth IRA</td>
+                            <td>Monthly Contribution</td>
+                            <td>$500.00</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-primary card-link">View Activity</button>
+            </div>
+
+        </div> <!-- Account Activity card-->
+
+        <div class="card" style="width: 28rem;">
+            <div class="card-body">
+                <h5 class="card-title">Stocks</h5>
+                <h1>AMZN</h1>
+                <Client.Components.SampleStockGraph StockDataList="stockDataList"/>
+                <NavLink href="stocks">
+                    <button type="button" class="btn btn-primary card-link">View Stocks and Market Activity</button>
+                </NavLink>
+            </div>
+        </div>
+
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">My Financial Advisor</h5>
+                <h5>(Insert Some Name Here)</h5>
+                <button type="button" class="btn btn-primary card-link">Send a Message</button>
+            </div>
+        </div>
+
     </div>
-
-    <div class="card" style="width: 18rem;">
-        <div class="card-body">
-            <h5 class="card-title">My Financial Advisor</h5>
-            <h5>(Insert Some Name Here)</h5>
-            <button type="button" class="btn btn-primary card-link">Send a Message</button>
-        </div>
-    </div>
-
-</div>
-
+    
+}
 
 
 
 @code {
+
+    private AccountInformation[]? userAccounts;
+
+    private string stockDataInfo;
+
+    public List<StockData> stockDataList = new List<StockData>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        userAccounts = await Http.GetFromJsonAsync<AccountInformation[]>("sample-data/accountMockData.json").ContinueWith(task => userAccounts = task.Result);
+        stockDataInfo = await Http.GetStringAsync("sample-data/intraday_60min_AMZN.csv");
+
+        List<string> stockRows = stockDataInfo.Split("\n").ToList();
+
+        /*
+        foreach (string s in stockRows)
+        {
+            Console.WriteLine(s);
+        }
+        */
+
+        for (int i = 0; i < stockRows.Count - 1; i++)
+        {
+            if (i > 0)
+            {
+                List<string> stockStringList = stockRows[i].Split(",").ToList();
+
+                
+                Console.WriteLine(stockStringList[1]);
+                
+                Console.WriteLine();
+
+                StockData stockInfo = new StockData {
+                        Timestamp = stockStringList[0],
+                        Symbol = "AMZN",
+                        Open = Double.Parse(stockStringList[1]),
+                        High = Double.Parse(stockStringList[2]),
+                        Low = Double.Parse(stockStringList[3]),
+                        Close = Double.Parse(stockStringList[4]),
+                        Volume = Int32.Parse(stockStringList[5]),
+                };
+                stockDataList.Add(stockInfo);
+            }
+        }
+
+        /*
+        foreach(StockData sd in stockDataList)
+        {
+            Console.WriteLine(sd.Timestamp);
+        }
+        */
+
+    }
+    
+    
+   
+
+    public double GetTotalInvestedAmount(AccountInformation userAccount)
+    {
+        double total = 0;
+
+        foreach(Accounts account in userAccount.Accounts)
+        {
+            total += account.AccountAmount;
+        }
+
+        return total;
+
+    }
+
+
+
+
+
+    /*
+    //For getting sample stock data
+    public async List<StockData> RetrieveStockData()
+    {
+        List<StockData> stockDataList = new List<StockData>();
+
+        //System.Diagnostics.Debug.WriteLine( Directory.GetCurrentDirectory());
+        //System.Diagnostics.Debug.WriteLine("fsdfsdfsdfsdfasf");
+
+
+        using (StreamReader reader = await new StreamReader(Http.GetStreamAsync("sample-data/intraday_60min_AMZN.csv")))
+        using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+        {
+
+
+            csv.Read();
+            csv.ReadHeader();
+            while (csv.Read())
+            {
+                //Get data off of CSV into stockData
+                StockData stockData = new StockData
+                    {
+                        Timestamp = DateTime.Parse(csv.GetField<string>("timestamp")).ToString("HH-mm tt"),
+                        Symbol = "AMZN",
+                        Open = csv.GetField<double>("open"),
+                        High = csv.GetField<double>("high"),
+                        Low = csv.GetField<double>("low"),
+                        Close = csv.GetField<double>("close"),
+                        Volume = csv.GetField<int>("volume"),
+                    };
+
+            }
+
+        }
+        return stockDataList;
+
+
+    }
+    */
+
+
 
 }
