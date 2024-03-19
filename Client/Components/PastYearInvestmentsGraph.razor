@@ -8,7 +8,9 @@
     private LineChartOptions lineChartOptions = default!;
     private ChartData chartData = default!;
 
+
     public List<string> GetXAxisLabels()
+
     {
         List<string> labels = new List<string>();
 
@@ -30,6 +32,7 @@
         return labels;
     }
 
+
     public List<double> GetYAxisLabels()
     {
         List<double> labels = new List<double>();
@@ -48,11 +51,12 @@
         return labels;
     }
 
+
     protected override void OnInitialized()
     {
         var colors = ColorBuilder.CategoricalTwelveColors;
 
-        var labels = GetXAxisLabels();
+        var labels = getXAxisLabels();
         var datasets = new List<IChartDataset>();
 
         var dataset1 = new LineChartDataset()
@@ -68,7 +72,6 @@
                 PointHoverRadius = new List<int> { 4 },
             };
         datasets.Add(dataset1);
-
 
 
         chartData = new ChartData
@@ -102,4 +105,5 @@
 
     [Parameter]
     public AccountInformation AccountInfo { get; set; } 
+
 }

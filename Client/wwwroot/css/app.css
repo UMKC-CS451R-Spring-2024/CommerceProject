@@ -62,3 +62,36 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+/* Background color for Budget page*/
+.budget-page-background {
+    background-color: #f0f0f0; /*light gray*/
+}
+
+/* Coloring for Budget page 50-30-20 boxes */
+.budget-needs-box {
+    background-color: #ffcccc; /* Light red for needs */
+}
+
+.budget-wants-box {
+    background-color: #ccccff; /* Light blue for savings/investing */
+}
+
+.budget-savings-box {
+    background-color: #ccffcc; /* Light green for wants */
+}
+
+.budget-needs-header {
+    background-color: #FF6347; /* Tomato */
+    color: white; /* White text color */
+}
+
+.budget-wants-header {
+    background-color: #4682B4; /* SteelBlue */
+    color: white;
+}
+
+.budget-savings-header {
+    background-color: #32CD32; /* LimeGreen */
+    color: white;
+}
