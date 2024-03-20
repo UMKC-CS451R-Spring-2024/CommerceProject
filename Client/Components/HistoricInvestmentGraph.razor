@@ -41,13 +41,19 @@
     [Range(0, double.MaxValue, ErrorMessage = "Please enter a valid amount.")]
     public double initialInvestment { get; set; } = 1000;
 
+    public class StockAnnualReturnsResponse
+    {
+        public string Symbol { get; set; }
+        public Dictionary<int, double> AnnualReturns { get; set; }
+    }
+
     // Initialization before user chooses a graph
     protected override void OnInitialized()
     {
         var colors = ColorBuilder.CategoricalTwelveColors;
         const double interestRate = 2.0; // 2% annual interest rate
 
-        var labels = Enumerable.Range(DateTime.Now.Year, 20).Select(year => year.ToString()).ToList(); // Years from now to 20 years later
+        var labels = Enumerable.Range(2005, 20).Select(year => year.ToString()).ToList(); // Years from now to 20 years later
 
         double cumulativeAmount = initialInvestment;
         var dataValues = new List<double>();
@@ -68,14 +74,8 @@
                 BorderWidth = new List<double> { 2 },
                 HoverBorderWidth = new List<double> { 4 },
                 PointBackgroundColor = new List<string> { colors[0] },
-                PointRadius = new List<int> { 0 }, // hide points
+                PointRadius = new List<int> { 0 },
                 PointHoverRadius = new List<int> { 4 },
-            };
-
-        chartData = new ChartData
-            {
-                Labels = labels,
-                Datasets = new List<IChartDataset> { dataset }
             };
 
         chartData = new ChartData
@@ -106,14 +106,13 @@
         await FetchAndDisplayAnnualReturns(stockTicker);
     }
 
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Initialize the chart with the API to get data
-            await FetchAndDisplayAnnualReturns(stockTicker);
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
         }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task FetchAndDisplayAnnualReturns(string symbol)
@@ -124,13 +123,12 @@
             var response = await httpClient.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {
-                string jsonString = await response.Content.ReadAsStringAsync();
-                var annualReturnsResponse = JsonConvert.DeserializeObject<Dictionary<int, double>>(jsonString);
+                var stockAnnualReturnsResponse = await response.Content.ReadFromJsonAsync<StockAnnualReturnsResponse>();
 
-                if (annualReturnsResponse != null)
+                if (stockAnnualReturnsResponse != null && stockAnnualReturnsResponse.AnnualReturns != null)
                 {
-                    // Process the response and update the chart
-                    UpdateChartData(annualReturnsResponse, symbol);
+                    // Use the deserialized data to update the chart
+                    UpdateChartData(stockAnnualReturnsResponse.AnnualReturns, stockAnnualReturnsResponse.Symbol);
                 }
             }
             else
@@ -148,18 +146,19 @@
 
     private void UpdateChartData(Dictionary<int, double> annualReturns, string symbol)
     {
-        var labels = annualReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
-        var dataValues = annualReturns.Values.ToList();
+        // Sort the returns by year to get an ordered sequence
+        var orderedReturns = annualReturns.OrderBy(kvp => kvp.Key).ToList();
 
-        // Assuming annualReturns contains the returns as percentages (e.g., 5 for 5%)
-        double cumulativeAmount = initialInvestment;
+        var labels = orderedReturns.Select(kvp => kvp.Key.ToString()).ToList();
         var cumulativeDataValues = new List<double>();
-        foreach (var annualReturn in dataValues)
-        {
-            cumulativeAmount *= (1 + annualReturn / 100);
-            cumulativeDataValues.Add(cumulativeAmount);
-        }
+        double cumulativeAmount = initialInvestment;
 
+        foreach (var (year, returnPercent) in orderedReturns)
+        {
+            cumulativeAmount *= 1 + (returnPercent / 100);
+            cumulativeDataValues.Add(cumulativeAmount); // Assuming you want to show the cumulative value
+        }
+        
         var colors = ColorBuilder.CategoricalTwelveColors;
         var dataset = new LineChartDataset()
             {
