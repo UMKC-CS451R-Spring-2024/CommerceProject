@@ -119,7 +119,7 @@
 
     private async Task FetchAndDisplayAnnualReturns(string symbol)
     {
-        var url = $"{apiBaseUrl}/api/Stock/GetTimeSeriesMonthlyAdjusted/{symbol}";
+        var url = $"{apiBaseUrl}/stock?symbol={symbol}";
         try
         {
             var response = await httpClient.GetAsync(url);
