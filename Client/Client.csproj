@@ -6,19 +6,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>False</Optimize>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Blazor.Bootstrap" Version="1.11.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.22" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.22" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="6.0.22" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="wwwroot\data\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Commerce.WebAPI\Commerce.WebAPI.csproj" />
   </ItemGroup>
 
 </Project>
