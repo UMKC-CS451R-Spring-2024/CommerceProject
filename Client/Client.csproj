@@ -17,4 +17,8 @@
     <Folder Include="wwwroot\data\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Commerce.WebAPI\Commerce.WebAPI.csproj" />
+  </ItemGroup>
+
 </Project>
