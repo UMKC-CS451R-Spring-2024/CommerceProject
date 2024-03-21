@@ -7,10 +7,14 @@ namespace Commerce.WebAPI.Repositories
     public class GetAnnualReturnsRepository : IGetAnnualReturnsRepository
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration configuration;
 
-        public GetAnnualReturnsRepository(IHttpClientFactory httpClientFactory)
+        public GetAnnualReturnsRepository(
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
+            this.configuration = configuration;
         }
 
         public async Task<GetAnnualReturnsResponse> GetAnnualReturns(string symbol)
@@ -18,7 +22,8 @@ namespace Commerce.WebAPI.Repositories
             var response = new GetAnnualReturnsResponse() { Symbol = symbol };
 
             var dataResult = await GetStockData(symbol);
-            if (dataResult == null || !dataResult.Any()) return new GetAnnualReturnsResponse();
+            if (dataResult == null || !dataResult.Any()) 
+                return new GetAnnualReturnsResponse();
 
             response.AnnualReturns = 
                 CalculateAnnualReturns(
@@ -41,7 +46,8 @@ namespace Commerce.WebAPI.Repositories
         private async Task<IOrderedEnumerable<KeyValuePair<DateOnly, MonthlyAdjustedData>>?> GetStockData(string symbol)
         {
             var client = _httpClientFactory.CreateClient("alphavantage");
-            var dataResponse = await client.GetAsync($"query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol={symbol}&apikey=demo");
+            var avConfig = configuration.GetSection("AlphaVantage");
+            var dataResponse = await client.GetAsync($"query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol={symbol}&apikey={avConfig["apiKey"]}");
             if (dataResponse.IsSuccessStatusCode)
             {
                 var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyAdjusted>(
