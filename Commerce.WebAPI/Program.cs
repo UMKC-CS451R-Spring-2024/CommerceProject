@@ -1,3 +1,4 @@
+using Commerce.WebAPI.Factories;
 using Commerce.WebAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<IGetAnnualReturnsRepository, GetAnnualReturnsRepository>();
+AddRepositories(builder);
+AddFactories(builder);
+builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient("alphavantage", httpClient =>
 {
     httpClient.BaseAddress = new Uri("https://www.alphavantage.co/");
@@ -31,3 +34,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static void AddRepositories(WebApplicationBuilder builder)
+{
+    builder.Services.AddSingleton<IGetAnnualReturnsRepository, GetAnnualReturnsRepository>();
+    builder.Services.AddSingleton<IGetStockMatchesRepository, GetStockMatchesRepository>();
+}
+static void AddFactories(WebApplicationBuilder builder)
+{
+    builder.Services.AddSingleton<IGetStockMatchesResponseFactory, GetStockMatchesResponseFactory>();
+}
