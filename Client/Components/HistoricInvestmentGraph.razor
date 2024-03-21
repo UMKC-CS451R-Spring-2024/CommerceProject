@@ -3,10 +3,19 @@
 @using BlazorBootstrap
 @using Color = System.Drawing.Color
 @using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@using Newtonsoft.Json
+
+@inject HttpClient httpClient
 
 <EditForm Model="@this" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="stockTicker" class="form-label">Stock Ticker:</label>
+        <InputText @bind-Value="stockTicker" class="form-control" id="stockTicker" />
+    </div>
 
     <div class="mb-3">
         <label for="initialInvestment" class="form-label">Initial Investment ($):</label>
@@ -22,45 +31,50 @@
     private LineChart lineChart = default!;
     private LineChartOptions lineChartOptions = default!;
     private ChartData chartData = default!;
-    private Dictionary<int, double> AnnualReturns = new Dictionary<int, double>
-    {
-        { 2020, 37.03 },
-        { 2021, 44.03 },
-        { 2022, 34.03 },
-        { 2023, 4.03 }
-    };
+    private string apiBaseUrl = "https://localhost:7283";
+
+    [Required]
+    [StringLength(10, ErrorMessage = "Ticker symbol is too long.")]
+    private string stockTicker = ""; // Variable to hold the stock ticker
+
     [Required]
     [Range(0, double.MaxValue, ErrorMessage = "Please enter a valid amount.")]
     public double initialInvestment { get; set; } = 1000;
 
+    public class StockAnnualReturnsResponse
+    {
+        public string Symbol { get; set; }
+        public Dictionary<int, double> AnnualReturns { get; set; }
+    }
 
+    // Initialization before user chooses a graph
     protected override void OnInitialized()
     {
         var colors = ColorBuilder.CategoricalTwelveColors;
+        const double interestRate = 2.0; // 2% annual interest rate
 
-        // Update labels based on dictionary
-        var labels = AnnualReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
+        var labels = Enumerable.Range(2005, 20).Select(year => year.ToString()).ToList(); // Years from now to 20 years later
 
         double cumulativeAmount = initialInvestment;
         var dataValues = new List<double>();
 
-        foreach (var year in labels)
+        // Simulate each year's growth at a fixed interest rate
+        for (int i = 0; i < 20; i++)
         {
-            int yr = int.Parse(year);
-            cumulativeAmount *= (1 + AnnualReturns[yr] / 100);
+            cumulativeAmount *= (1 + interestRate / 100);
             dataValues.Add(cumulativeAmount);
         }
 
         var dataset = new LineChartDataset()
             {
-                Label = "IBM Annual Returns",
+                Label = "Savings Account Growth",
                 Data = dataValues,
                 BackgroundColor = new List<string> { colors[0] },
                 BorderColor = new List<string> { colors[0] },
                 BorderWidth = new List<double> { 2 },
                 HoverBorderWidth = new List<double> { 4 },
                 PointBackgroundColor = new List<string> { colors[0] },
-                PointRadius = new List<int> { 0 }, // hide points
+                PointRadius = new List<int> { 0 },
                 PointHoverRadius = new List<int> { 4 },
             };
 
@@ -78,15 +92,19 @@
             lineChartOptions.Scales.X!.Title!.Text = "Year";
             lineChartOptions.Scales.X!.Title!.Display = true;
 
-            lineChartOptions.Scales.Y!.Title!.Text = "Cumulative Return ($)";
+            lineChartOptions.Scales.Y!.Title!.Text = "Cumulative Amount ($)";
             lineChartOptions.Scales.Y!.Title!.Display = true;
 
-            lineChartOptions.Plugins.Title!.Text = "Annual Investment Returns";
+            lineChartOptions.Plugins.Title!.Text = "Savings Account Growth Over 20 Years at 2% Interest";
             lineChartOptions.Plugins.Title.Display = true;
 
         };
     }
 
+    private async Task HandleValidSubmit()
+    {
+        await FetchAndDisplayAnnualReturns(stockTicker);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -97,14 +115,152 @@
         await base.OnAfterRenderAsync(firstRender);
     }
 
-
-    private async Task HandleValidSubmit()
+    private async Task FetchAndDisplayAnnualReturns(string symbol)
     {
-        await UpdateChartAsync();
+        var url = $"{apiBaseUrl}/stock?symbol={symbol}";
+        try
+        {
+            var response = await httpClient.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                var stockAnnualReturnsResponse = await response.Content.ReadFromJsonAsync<StockAnnualReturnsResponse>();
+
+                if (stockAnnualReturnsResponse != null && stockAnnualReturnsResponse.AnnualReturns != null)
+                {
+                    // Use the deserialized data to update the chart
+                    UpdateChartData(stockAnnualReturnsResponse.AnnualReturns, stockAnnualReturnsResponse.Symbol);
+                }
+            }
+            else
+            {
+                // Handle the error response here
+                Console.WriteLine("Error fetching data: " + response.StatusCode);
+            }
+        }
+        catch (HttpRequestException e)
+        {
+            // Handle exceptions or log the error
+            Console.WriteLine("Exception caught: " + e.Message);
+        }
+    }
+
+    private void UpdateChartData(Dictionary<int, double> annualReturns, string symbol)
+    {
+        // Sort the returns by year to get an ordered sequence
+        var orderedReturns = annualReturns.OrderBy(kvp => kvp.Key).ToList();
+
+        var labels = orderedReturns.Select(kvp => kvp.Key.ToString()).ToList();
+        var cumulativeDataValues = new List<double>();
+        double cumulativeAmount = initialInvestment;
+
+        foreach (var (year, returnPercent) in orderedReturns)
+        {
+            cumulativeAmount *= 1 + (returnPercent / 100);
+            cumulativeDataValues.Add(cumulativeAmount); // Assuming you want to show the cumulative value
+        }
+        
+        var colors = ColorBuilder.CategoricalTwelveColors;
+        var dataset = new LineChartDataset()
+            {
+                Label = $"{symbol} Annual Returns",
+                Data = cumulativeDataValues,
+                BackgroundColor = new List<string> { colors[0] },
+                BorderColor = new List<string> { colors[0] },
+                BorderWidth = new List<double> { 2 },
+                HoverBorderWidth = new List<double> { 4 },
+                PointBackgroundColor = new List<string> { colors[0] },
+                PointRadius = new List<int> { 1 },
+                PointHoverRadius = new List<int> { 4 },
+            };
+
+        chartData = new ChartData
+            {
+                Labels = labels,
+                Datasets = new List<IChartDataset> { dataset }
+            };
+
+        lineChartOptions = new LineChartOptions();
+        {
+            lineChartOptions.Responsive = true;
+            lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+            lineChartOptions.Scales.X!.Title!.Text = "Year";
+            lineChartOptions.Scales.X!.Title!.Display = true;
+
+            lineChartOptions.Scales.Y!.Title!.Text = "Cumulative Amount ($)";
+            lineChartOptions.Scales.Y!.Title!.Display = true;
+
+            lineChartOptions.Plugins.Title!.Text = stockTicker + " Annual Investment Return";
+            lineChartOptions.Plugins.Title.Display = true;
+
+        };
+
+        // Refresh the chart with the new data
+        if (lineChart != null)
+        {
+            lineChart.UpdateAsync(chartData, lineChartOptions);
+        }
     }
 
 
-    private async Task UpdateChart()
+
+
+    @*
+    private void InitializeChartWithData()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+
+        // Update labels based on the fetched dictionary
+        var labels = AnnualReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
+
+        double cumulativeAmount = initialInvestment;
+        var dataValues = new List<double>();
+
+        // You might need to adjust this logic depending on how you want to calculate cumulative returns
+        foreach (var year in labels)
+        {
+            int yr = int.Parse(year);
+            cumulativeAmount *= (1 + AnnualReturns[yr] / 100);
+            dataValues.Add(cumulativeAmount);
+        }
+
+        var dataset = new LineChartDataset()
+            {
+                Label = stockTicker + " Annual Returns",
+                Data = dataValues,
+                BackgroundColor = new List<string> { colors[0] },
+                BorderColor = new List<string> { colors[0] },
+                BorderWidth = new List<double> { 2 },
+                HoverBorderWidth = new List<double> { 4 },
+                PointBackgroundColor = new List<string> { colors[0] },
+                PointRadius = new List<int> { 1 },
+                PointHoverRadius = new List<int> { 4 },
+            };
+
+        chartData = new ChartData
+            {
+                Labels = labels,
+                Datasets = new List<IChartDataset> { dataset }
+            };
+
+        lineChartOptions = new LineChartOptions();
+        {
+            lineChartOptions.Responsive = true;
+            lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+            lineChartOptions.Scales.X!.Title!.Text = "Year";
+            lineChartOptions.Scales.X!.Title!.Display = true;
+
+            lineChartOptions.Scales.Y!.Title!.Text = "Cumulative Amount ($)";
+            lineChartOptions.Scales.Y!.Title!.Display = true;
+
+            lineChartOptions.Plugins.Title!.Text = stockTicker + " Annual Investment Return";
+            lineChartOptions.Plugins.Title.Display = true;
+
+        };
+    }
+
+        private async Task UpdateChart()
     {
         await UpdateChartAsync();
     }
@@ -128,7 +284,7 @@
     {
         new LineChartDataset()
         {
-            Label = "IBM Annual Returns",
+            Label = stockTicker + " Annual Returns",
             Data = dataValues,
             BackgroundColor = new List<string> { "rgba(0, 123, 255, 0.5)" },
             BorderColor = new List<string> { "rgba(0, 123, 255, 1)" },
@@ -142,5 +298,5 @@
 
         await lineChart.UpdateAsync(chartData, lineChartOptions);
     }
-
+    *@
 }
