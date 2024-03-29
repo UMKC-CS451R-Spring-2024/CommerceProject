@@ -217,6 +217,10 @@
         }
     }
 
+    private async Task HandleValidSubmit()
+    {
+        await FetchAndDisplayAnnualReturns(stockTicker);
+    }
 
     private async Task UpdateChartDataAsync()
     {
@@ -234,10 +238,7 @@
         await lineChart.UpdateAsync(chartData, lineChartOptions);
     }
 
-    private async Task HandleValidSubmit()
-    {
-        await FetchAndDisplayAnnualReturns(stockTicker);
-    }
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
