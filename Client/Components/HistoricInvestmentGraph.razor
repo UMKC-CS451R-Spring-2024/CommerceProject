@@ -1,12 +1,14 @@
 ﻿@*<h3>HistoricInvestmentGraph</h3>*@
 
 @using BlazorBootstrap
+@using Client.Repositories.Stock;
 @using Color = System.Drawing.Color
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using Newtonsoft.Json
 
-@inject HttpClient httpClient
+@* @inject HttpClient httpClient *@
+@inject IStockRepository stockRepository
 
 <EditForm Model="@this" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -117,24 +119,22 @@
 
     private async Task FetchAndDisplayAnnualReturns(string symbol)
     {
-        var url = $"{apiBaseUrl}/stock?symbol={symbol}";
+        // var url = $"{apiBaseUrl}/stock?symbol={symbol}";
         try
         {
-            var response = await httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
+            // var response = await httpClient.GetAsync(url);
+            var annualReturns = await stockRepository.GetAnnualReturns(symbol);
+            if (annualReturns.AnnualReturns.Any())
             {
-                var stockAnnualReturnsResponse = await response.Content.ReadFromJsonAsync<StockAnnualReturnsResponse>();
-
-                if (stockAnnualReturnsResponse != null && stockAnnualReturnsResponse.AnnualReturns != null)
-                {
+                
                     // Use the deserialized data to update the chart
-                    UpdateChartData(stockAnnualReturnsResponse.AnnualReturns, stockAnnualReturnsResponse.Symbol);
-                }
+                    UpdateChartData(annualReturns.AnnualReturns, symbol);
+                
             }
             else
             {
                 // Handle the error response here
-                Console.WriteLine("Error fetching data: " + response.StatusCode);
+                Console.WriteLine("Error fetching data ");
             }
         }
         catch (HttpRequestException e)

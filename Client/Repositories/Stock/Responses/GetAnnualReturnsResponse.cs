@@ -1,4 +1,4 @@
-﻿namespace Commerce.WebAPI.Responses
+﻿namespace Client.Repositories.Stock.Responses
 {
     public class GetAnnualReturnsResponse
     {
@@ -7,7 +7,7 @@
             AnnualReturns = new Dictionary<int, double>();
         }
 
-        public string Symbol {  get; set; }
+        public string Symbol { get; set; }
         public Dictionary<int, double> AnnualReturns { get; set; }
     }
 }

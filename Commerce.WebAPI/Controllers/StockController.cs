@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-
+using System.Web.Http.Cors;
 
 namespace Commerce.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class StockController : ControllerBase
     {
         private readonly IMemoryCache cache;
