@@ -95,3 +95,9 @@ a, .btn-link {
     background-color: #32CD32; /* LimeGreen */
     color: white;
 }
+
+// Investments historic graph
+.unique-line-chart-width {
+    width: 100%;
+    height: auto;
+}
