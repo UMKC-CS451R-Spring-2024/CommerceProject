@@ -1,8 +1,50 @@
 ﻿@page "/investments"
 
-<h3>Explore Investments</h3>
+<style>
+    .page-background {
+        background-color: #047151;
+        min-height: 100vh; /* Full viewport height */
+        color: #ffffff; /* White text for better contrast */
+        padding: 10px; /* Padding around the content */
+    }
 
-<Client.Components.HistoricInvestmentGraph />
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: start; /* Align items to the start of the container */
+        padding: 1px;
+        background-color: #047151;
+    }
+
+        .header img {
+            margin-right: 1px; /* Add some margin to the right of the image */
+        }
+
+        .header h3 {
+            font-size: 4rem;
+            color: #ffd700; /* Gold color for the text */
+            margin-bottom: 0; /* Optionally remove bottom margin from the header text */
+        }
+
+    .investment-content {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+    }
+</style>
+
+
+<div class="page-background">
+    <div class="header">
+        <img src="https://www.commercebank.com/-/media/cb/images/about-us/media-center/commerce-in-the-news/latest-news-generic-cb-logo.jpg?revision=075e08c2-6d31-43ab-a3c0-7a97c844d967&modified=20221222191715" alt="Commerce Bank" />
+        <h3>Compare Investments</h3>
+    </div>
+
+    <div class="investment-content">
+        <Client.Components.HistoricInvestmentGraph />
+    </div>
+
+</div>
 
 @code {
 
