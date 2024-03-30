@@ -46,14 +46,12 @@
 
 
 @code {
-    private string annualReturnsDisplay;
-
     private LineChart lineChart = default!;
     private LineChartOptions lineChartOptions = default!;
     private ChartData chartData = default!;
     private string apiBaseUrl = "https://localhost:7283";
     private int lineCount;
-    private List<string> labels;
+    private List<string>? labels;
     private List<LineChartDataset> datasets = new List<LineChartDataset>();
     List<double> dataValues { get; set; } = new List<double>();
     private List<Dictionary<int, double>> returnsDictionaries = new List<Dictionary<int, double>>();
@@ -66,11 +64,6 @@
     [Range(0, double.MaxValue, ErrorMessage = "Please enter a valid amount.")]
     public double initialInvestment { get; set; }
 
-    public class StockAnnualReturnsResponse
-    {
-        public string Symbol { get; set; }
-        public Dictionary<int, double> AnnualReturns { get; set; }
-    }
 
     // Initialization before user chooses a graph
     protected override void OnInitialized()
@@ -192,20 +185,14 @@
         // var url = $"{apiBaseUrl}/stock?symbol={symbol}";
         try
         {
-            // var response = await httpClient.GetAsync(url);
             var annualReturns = await stockRepository.GetAnnualReturns(symbol);
+
             if (annualReturns.AnnualReturns.Any())
             {
-                var stockAnnualReturnsResponse = await response.Content.ReadFromJsonAsync<StockAnnualReturnsResponse>();
-
-                if (stockAnnualReturnsResponse != null && stockAnnualReturnsResponse.AnnualReturns != null)
-                {
-                    // Add the annual returns data as a new line on the chart
-                    AddLineToChart(stockAnnualReturnsResponse.AnnualReturns, stockAnnualReturnsResponse.Symbol);
-                    // Update the chart to reflect new data
-                    StateHasChanged();
-
-                }
+                // Add the annual returns data as a new line on the chart
+                AddLineToChart(annualReturns.AnnualReturns, annualReturns.Symbol);
+                // Update the chart to reflect new data
+                StateHasChanged();
             }
             else
             {
