@@ -17,6 +17,7 @@ builder.Services.AddHttpClient("Stock", httpClient =>
     httpClient.BaseAddress = new Uri("https://localhost:7283/");
 });
 
+
 builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddOidcAuthentication(options =>
