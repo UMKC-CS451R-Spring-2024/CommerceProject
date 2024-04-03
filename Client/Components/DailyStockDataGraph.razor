@@ -1,0 +1,145 @@
+﻿@using BlazorBootstrap
+@using Color = System.Drawing.Color
+
+<LineChart @ref="lineChart" Width="600" Class="mb-4" />
+
+@code {
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+
+
+    public List<String> GetXAxisLabels()
+    {
+        List<string> dates = new List<string>();
+
+        //Take the current date and go back 2 weeks.
+        DateTime currentDate = DateTime.Now.Date;
+        currentDate = currentDate.AddDays(-15);
+
+        for (int i = 0; i < 14; i++)
+        {
+            if (currentDate.DayOfWeek.ToString().Equals("Saturday") || currentDate.DayOfWeek.ToString().Equals("Sunday") || currentDate.ToString("yyyy-MM-dd").Equals("2024-03-29"))
+            {
+                System.Diagnostics.Debug.WriteLine("Is the weekend");
+                currentDate = currentDate.AddDays(1);
+
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Adding Date");
+                dates.Add(currentDate.ToString("yyyy-MM-dd"));
+                currentDate = currentDate.AddDays(1);
+            }
+
+        }
+
+
+        return dates;
+    }
+
+    public List<double> GetYAxisLabels()
+    {
+        List<double> highestStockPriceOfEachDay = new List<double>();
+
+        DateTime currentDate = DateTime.Now.Date;
+        currentDate = currentDate.AddDays(-15);
+
+        for (int i = 0; i < 14; i++)
+        {
+
+            if (currentDate.DayOfWeek.ToString().Equals("Saturday") || currentDate.DayOfWeek.ToString().Equals("Sunday")  || currentDate.ToString("yyyy-MM-dd").Equals("2024-03-29"))
+            {
+                System.Diagnostics.Debug.WriteLine("The Day is saturaday or sunday");
+                currentDate = currentDate.AddDays(1);
+
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Adding highest stock price");
+                highestStockPriceOfEachDay.Add(Double.Parse(DailyStockData.TimeSeriesDaily[currentDate.ToString("yyyy-MM-dd")].High));
+                currentDate = currentDate.AddDays(1);
+            }
+
+
+        }
+
+        return highestStockPriceOfEachDay;
+    }
+
+    public double getMinimumYValue()
+    {
+        List<double> values = GetYAxisLabels();
+        double minValue = values[0];
+
+        for(int i = 1; i < values.Count; i++)
+        {
+            if(minValue > values[i])
+            {
+                minValue = values[i];
+            }
+        }
+        minValue = (int)(Math.Floor(minValue / 10.0d) * 10);
+        return minValue;
+    }
+
+
+    protected override void OnInitialized()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+
+        var labels = GetXAxisLabels();
+        var datasets = new List<IChartDataset>();
+
+        var dataset1 = new LineChartDataset()
+            {
+                Label = "Daily Highest Stock Prices for the Last 2 Weeks",
+                Data = GetYAxisLabels(),
+                BackgroundColor = new List<string> { colors[0] },
+                BorderColor = new List<string> { colors[0] },
+                BorderWidth = new List<double> { 2 },
+                HoverBorderWidth = new List<double> { 4 },
+                PointBackgroundColor = new List<string> { colors[0] },
+                PointRadius = new List<int> { 0 }, // hide points
+                PointHoverRadius = new List<int> { 4 },
+            };
+        datasets.Add(dataset1);
+
+
+
+        chartData = new ChartData
+            {
+                Labels = labels,
+                Datasets = datasets
+            };
+
+        lineChartOptions = new();
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+        lineChartOptions.Scales.X.Title.Text = "Dates";
+        lineChartOptions.Scales.X.Title.Display = true;
+
+        lineChartOptions.Scales.Y.Title.Text = "Stock Price USD";
+        lineChartOptions.Scales.Y.Title.Display = true;
+        lineChartOptions.Scales.Y.Min = getMinimumYValue();
+
+        lineChartOptions.Plugins.Title.Text = "Highest Stock Price";
+        lineChartOptions.Plugins.Title.Display = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+
+
+    [Parameter]
+    public DailyStockData DailyStockData { get; set; }
+
+}

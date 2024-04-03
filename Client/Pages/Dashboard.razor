@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @using CsvHelper;
 @using System.Globalization;
+@using Newtonsoft.Json;
 
 
 
@@ -93,11 +94,11 @@ else
 
         </div> <!-- Account Activity card-->
 
-        <div class="card" style="width: 28rem;">
+        <div class="card" style="width: 39rem;">
             <div class="card-body">
                 <h5 class="card-title">Stocks</h5>
-                <h1>AMZN</h1>
-                <Client.Components.SampleStockGraph StockDataList="stockDataList"/>
+                <h1>IBM</h1>
+                <Client.Components.DailyStockDataGraph DailyStockData="dailyStockData" />
                 <NavLink href="stocks">
                     <button type="button" class="btn btn-primary card-link">View Stocks and Market Activity</button>
                 </NavLink>
@@ -126,20 +127,53 @@ else
 
     public List<StockData> stockDataList = new List<StockData>();
 
+    string apiKey = "KRY4J4J7NUX3OZG8";
+    string urlForDailyStockData;
+
+    private DailyStockData? dailyStockData;
+
 
     protected override async Task OnInitializedAsync()
     {
         userAccounts = await Http.GetFromJsonAsync<AccountInformation[]>("sample-data/accountMockData.json").ContinueWith(task => userAccounts = task.Result);
+
+
+        using (HttpClient http = new HttpClient())
+        {
+
+            //urlForDailyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={StockTicker}&apikey={apiKey}";
+            urlForDailyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo";
+            HttpResponseMessage response = await http.GetAsync(urlForDailyStockData);
+
+            // Ensure the response was successful
+            response.EnsureSuccessStatusCode();
+
+            // Read the content of the response as a string
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            // Print the JSON data
+            //Console.WriteLine(responseBody);
+
+            dailyStockData = JsonConvert.DeserializeObject<DailyStockData>(responseBody);
+
+            //Console.WriteLine(Double.Parse(dailyStockData.TimeSeriesDaily["2024-03-15"].High));
+
+
+
+        }
+
+
+        /*
         stockDataInfo = await Http.GetStringAsync("sample-data/intraday_60min_AMZN.csv");
 
         List<string> stockRows = stockDataInfo.Split("\n").ToList();
 
-        /*
+        
         foreach (string s in stockRows)
         {
             Console.WriteLine(s);
         }
-        */
+        
 
         for (int i = 0; i < stockRows.Count - 1; i++)
         {
@@ -164,6 +198,7 @@ else
                 stockDataList.Add(stockInfo);
             }
         }
+        */
 
         /*
         foreach(StockData sd in stockDataList)
