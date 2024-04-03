@@ -1,5 +1,6 @@
 @page "/retirement"
 @using System.ComponentModel.DataAnnotations
+@using Client.Components
 
 <h3>Retirement Calculator</h3>
 
@@ -86,12 +87,15 @@
 </EditForm>
 
 @if (result != null) {
-    <div class="result">
+    <div class="result m-auto">
 	<h4>Result:</h4>
 	<h5>(All numbers are normalized to today's value)</h5>
 	<p>What you'll have $@result.RetirementValue.ToString("N2")</p>
 	<p>How much you'll be able to withdrawal $@result.ActualMonthlyIncome.ToString("N2")</p>
 	<p> What you'll need $@result.NeededAmount.ToString("N2")</p>
+	<p> What you'll need to contribute $@result.NeededContribution.ToString("N2")</p>
+
+	<RetirementGraph ActualData="@result.ActualData" NeededData="@result.NeededData" Age="@data.Age" LifeExpectancy="@data.LifeExpectancy" />
     </div>
 }
 
@@ -99,11 +103,28 @@
     private RetirementData data = new RetirementData();
     private RetirementResult result;
 
+    private List<double> GetData(double payment) {
+	List<double> dataset = new List<double> {};
+	for (int i = data.Age; i <= data.RetirementAge; i++) {
+	    dataset.Add(CalculateRetirementValue(i - data.Age, data.ReturnRate, data.InflationRate, data.CurrentSavings, payment));
+    }
+	double retirementAmount = dataset.Last();
+
+	for (int i = data.RetirementAge + 1; i < data.LifeExpectancy; i++) {
+	    dataset.Add(Math.Max(0, CalculateRetirementValue(i - data.RetirementAge, data.RetirementReturnRate, data.InflationRate, retirementAmount, -data.MonthlyBudget)));
+    }
+	return dataset;
+    }
+
     public void CalculateRetirement() {
 	result = new RetirementResult();
 	result.RetirementValue = CalculateRetirementValue((data.RetirementAge - data.Age + 1), data.ReturnRate, data.InflationRate, data.CurrentSavings, data.MonthlyContribution);
 	result.ActualMonthlyIncome = CalculateAmortization((data.LifeExpectancy - data.RetirementAge + 1), data.RetirementReturnRate, data.InflationRate, result.RetirementValue);
 	result.NeededAmount = CalculateNeededAmount((data.LifeExpectancy - data.RetirementAge + 1), data.RetirementReturnRate, data.InflationRate, data.MonthlyBudget);
+	result.NeededContribution = CalculateNeededContribution((data.RetirementAge - data.Age + 1), data.ReturnRate, data.InflationRate, data.CurrentSavings, result.NeededAmount);
+
+	result.ActualData = GetData(data.MonthlyContribution);
+	result.NeededData = GetData(result.NeededContribution);
     }
 
     private double CalculateAmortization(int years, double returnRate, double inflation, double principal) {
@@ -111,7 +132,15 @@
 	int periods = years * 12;
 	double withdrawal = principal * rate / ((1 - (1 / Math.Pow(1 + rate, periods))) * (1 + rate));
 	return withdrawal;
-	}
+    }
+
+    private double CalculateNeededContribution(int years, double returnRate, double inflation, double principal, double neededAmount) {
+	double rate = (returnRate - inflation) / 1200;
+	int periods = years * 12;
+
+	double contribution = rate * (neededAmount - (principal * Math.Pow(1 + rate, periods))) / (Math.Pow(1 + rate, periods) - 1);
+	return contribution;
+    }
 
     private double CalculateRetirementValue(int years, double returnRate, double inflation, double principal, double payments) {
 	double rate = (returnRate - inflation) / 1200;
@@ -124,7 +153,7 @@
     private double CalculateNeededAmount(int years, double returnRate, double inflation, double income) {
 	double rate = (returnRate - inflation) / 1200;
 	int periods = years * 12;
-	double amount = income / (rate / ((1 - (1 / Math.Pow(1 + rate, periods))) * (1 + rate)));
+	double amount = (income * (1 - (1 / Math.Pow(1 + rate, periods)))) / rate;
 	return amount;
     }
 
@@ -132,6 +161,10 @@
 	public double RetirementValue { get; set; }
 	public double ActualMonthlyIncome { get; set; }
 	public double NeededAmount { get; set; }
+	public double NeededContribution { get; set; }
+
+	public List<double> ActualData { get; set; }
+	public List<double> NeededData { get; set; }
     }
     
     public class RetirementData {
