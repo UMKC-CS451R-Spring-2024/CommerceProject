@@ -1,0 +1,215 @@
+@page "/retirement"
+@using System.ComponentModel.DataAnnotations
+@using Client.Components
+
+<h3>Retirement Calculator</h3>
+
+<EditForm Model="@data" OnValidSubmit="@CalculateRetirement">
+    <DataAnnotationsValidator />
+
+    <div class="d-flex flex-row mb-2">
+	<div class="d-flex flex-column m-auto">
+	    <h4>Retirement Information</h4>
+	    
+	    <div class="form-group">
+		<label for="age">Age:</label>
+		<InputNumber id="age" class="form-control" @bind-Value="data.Age" />
+		<ValidationMessage For="@(() => data.Age)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="savings">Savings:</label>
+		<InputNumber id="savings" class="form-control" @bind-Value="data.CurrentSavings" />
+		<ValidationMessage For="@(() => data.CurrentSavings)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="income">Monthly Income:</label>
+		<InputNumber id="income" class="form-control" @bind-Value="data.MonthlyIncome" />
+		<ValidationMessage For="@(() => data.MonthlyIncome)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="contribution">Monthly Contribution:</label>
+		<InputNumber id="contribution" class="form-control" @bind-Value="data.MonthlyContribution" />
+		<ValidationMessage For="@(() => data.MonthlyContribution)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="budget">Retirement Monthly Budget:</label>
+		<InputNumber id="budget" class="form-control" @bind-Value="data.MonthlyBudget" />
+		<ValidationMessage For="@(() => data.MonthlyBudget)" />
+	    </div>
+	</div>
+	
+	<div class="d-flex flex-column m-auto">
+	    <h4>Advanced Information</h4>
+
+	    <div class="form-group">
+		<label for="retAge">Retirement Age:</label>
+		<InputNumber id="retAge" class="form-control" @bind-Value="data.RetirementAge" />
+		<ValidationMessage For="@(() => data.RetirementAge)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="lifeExpectancy">Life Expectancy:</label>
+		<InputNumber id="lifeExpectancy" class="form-control" @bind-Value="data.LifeExpectancy" />
+		<ValidationMessage For="@(() => data.LifeExpectancy)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="return">Pre-Retirement Return Rate:</label>
+		<InputNumber id="return" class="form-control" @bind-Value="data.ReturnRate" />
+		<ValidationMessage For="@(() => data.ReturnRate)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="retReturn">Post-Retirement Return Rate:</label>
+		<InputNumber id="retReturn" class="form-control" @bind-Value="data.RetirementReturnRate" />
+		<ValidationMessage For="@(() => data.RetirementReturnRate)" />
+	    </div>
+
+	    <div class="form-group">
+		<label for="inflation">Inflation Rate:</label>
+		<InputNumber id="inflation" class="form-control" @bind-Value="data.InflationRate" />
+		<ValidationMessage For="@(() => data.InflationRate)" />
+	    </div>
+
+	    <!-- <div class="form-group">
+		 <label for="increase">Income Increase Rate:</label>
+		 <InputNumber id="increase" class="form-control" @bind-Value="data.IncomeIncreaseRate" />
+		 <ValidationMessage For="@(() => data.IncomeIncreaseRate)" />
+		 </div> -->
+	</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Calculate</button>
+</EditForm>
+
+@if (result != null) {
+    <div class="result m-auto">
+	<h4>Result:</h4>
+	<h5>(All numbers are normalized to today's value)</h5>
+	<p>What you'll have $@result.RetirementValue.ToString("N2")</p>
+	<p>How much you'll be able to withdrawal $@result.ActualMonthlyIncome.ToString("N2")</p>
+	<p> What you'll need $@result.NeededAmount.ToString("N2")</p>
+	<p> What you'll need to contribute $@result.NeededContribution.ToString("N2")</p>
+
+	<RetirementGraph ActualData="@result.ActualData" NeededData="@result.NeededData" Age="@data.Age" LifeExpectancy="@data.LifeExpectancy" />
+    </div>
+}
+
+@code {
+    private RetirementData data = new RetirementData();
+    private RetirementResult result;
+
+    private List<double> GetData(double payment) {
+	List<double> dataset = new List<double> {};
+	for (int i = data.Age; i <= data.RetirementAge; i++) {
+	    dataset.Add(CalculateRetirementValue(i - data.Age, data.ReturnRate, data.InflationRate, data.CurrentSavings, payment));
+    }
+	double retirementAmount = dataset.Last();
+
+	for (int i = data.RetirementAge + 1; i < data.LifeExpectancy; i++) {
+	    dataset.Add(Math.Max(0, CalculateRetirementValue(i - data.RetirementAge, data.RetirementReturnRate, data.InflationRate, retirementAmount, -data.MonthlyBudget)));
+    }
+	return dataset;
+    }
+
+    public void CalculateRetirement() {
+	result = new RetirementResult();
+	result.RetirementValue = CalculateRetirementValue((data.RetirementAge - data.Age + 1), data.ReturnRate, data.InflationRate, data.CurrentSavings, data.MonthlyContribution);
+	result.ActualMonthlyIncome = CalculateAmortization((data.LifeExpectancy - data.RetirementAge + 1), data.RetirementReturnRate, data.InflationRate, result.RetirementValue);
+	result.NeededAmount = CalculateNeededAmount((data.LifeExpectancy - data.RetirementAge + 1), data.RetirementReturnRate, data.InflationRate, data.MonthlyBudget);
+	result.NeededContribution = CalculateNeededContribution((data.RetirementAge - data.Age + 1), data.ReturnRate, data.InflationRate, data.CurrentSavings, result.NeededAmount);
+
+	result.ActualData = GetData(data.MonthlyContribution);
+	result.NeededData = GetData(result.NeededContribution);
+    }
+
+    private double CalculateAmortization(int years, double returnRate, double inflation, double principal) {
+	double rate = (returnRate - inflation) / 1200;
+	int periods = years * 12;
+	double withdrawal = principal * rate / ((1 - (1 / Math.Pow(1 + rate, periods))) * (1 + rate));
+	return withdrawal;
+    }
+
+    private double CalculateNeededContribution(int years, double returnRate, double inflation, double principal, double neededAmount) {
+	double rate = (returnRate - inflation) / 1200;
+	int periods = years * 12;
+
+	double contribution = rate * (neededAmount - (principal * Math.Pow(1 + rate, periods))) / (Math.Pow(1 + rate, periods) - 1);
+	return contribution;
+    }
+
+    private double CalculateRetirementValue(int years, double returnRate, double inflation, double principal, double payments) {
+	double rate = (returnRate - inflation) / 1200;
+	int periods = years * 12;
+	double contributionValue = (payments / rate) * (Math.Pow(1 + rate, periods) - 1);
+	double principalValue = principal * Math.Pow(1 + rate, periods);
+	return contributionValue + principalValue;	
+	}
+
+    private double CalculateNeededAmount(int years, double returnRate, double inflation, double income) {
+	double rate = (returnRate - inflation) / 1200;
+	int periods = years * 12;
+	double amount = (income * (1 - (1 / Math.Pow(1 + rate, periods)))) / rate;
+	return amount;
+    }
+
+    public class RetirementResult {
+	public double RetirementValue { get; set; }
+	public double ActualMonthlyIncome { get; set; }
+	public double NeededAmount { get; set; }
+	public double NeededContribution { get; set; }
+
+	public List<double> ActualData { get; set; }
+	public List<double> NeededData { get; set; }
+    }
+    
+    public class RetirementData {
+	[Required(ErrorMessage = "Current age is required")]
+	[Range(18, 120, ErrorMessage = "Enter an age between 18 and 120")]
+	public int Age { get; set; } = 22;
+
+	[Required(ErrorMessage = "Current savings are required")]
+	[Range(0, 100000000, ErrorMessage = "Enter current savings between 0 and 100000000")]
+	public double CurrentSavings { get; set; } = 5000;
+
+	[Required(ErrorMessage = "Monthly income is required")]
+	[Range(0, 1000000, ErrorMessage = "Enter a monthly income between 0 and 1000000")]
+	public double MonthlyIncome { get; set; } = 2500;
+
+	[Required(ErrorMessage = "Monthly contribution is required")]
+	[Range(0, 10000000, ErrorMessage = "Enter a monthly contribution between 0 and 10000000")]
+	public double MonthlyContribution { get; set; } = 250;
+
+	[Required(ErrorMessage = "Monthly retirement budget is required")]
+	[Range(0, 10000000, ErrorMessage = "Enter a monthly retirement budget between 0 and 10000000")]
+	public double MonthlyBudget { get; set; } = 2500;
+
+	[Required]
+	[Range(18, 120, ErrorMessage = "Enter an age between 18 and 120")]
+	public int RetirementAge { get; set; } = 65;
+
+	[Required]
+	[Range(18, 120, ErrorMessage = "Enter an age between 18 and 120")]
+	public int LifeExpectancy { get; set; } = 100;
+
+	[Required]
+	[Range(0, 15, ErrorMessage = "Enter a return rate between 0% and 15%")]
+	public double ReturnRate { get; set; } = 10;
+
+	[Required]
+	[Range(0, 15, ErrorMessage = "Enter a return rate between 0% and 15%")]
+	public double RetirementReturnRate { get; set; } = 5;
+
+	[Required]
+	[Range(0, 15, ErrorMessage = "Enter an inflation rate between 0% and 15%")]
+	public double InflationRate { get; set; } = 3;
+
+	// [Required]
+	// [Range(0, 15, ErrorMessage = "Enter an income increase rate between 0% and 15%")]
+	// public double IncomeIncreaseRate { get; set; } = 2;
+    }
+}
