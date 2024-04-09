@@ -108,7 +108,10 @@ else
         <div class="card" style="width: 18rem;">
             <div class="card-body">
                 <h5 class="card-title">My Financial Advisor</h5>
-                <h5>(Insert Some Name Here)</h5>
+                <img src=@userAccounts[0].FinancialAdvisorInfo[1] width="100" height="100"/>
+                <h4>@userAccounts[0].FinancialAdvisorInfo[0]</h4>
+                <h6><b>Phone:</b> @userAccounts[0].FinancialAdvisorInfo[2]</h6>
+                <h6><b>Email:</b> @userAccounts[0].FinancialAdvisorInfo[3]</h6>
                 <button type="button" class="btn btn-primary card-link">Send a Message</button>
             </div>
         </div>
