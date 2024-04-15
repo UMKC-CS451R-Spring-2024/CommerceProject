@@ -1,6 +1,9 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["*.{css,scss,js}"]
-  }
+    "navigationFallback": {
+	"rewrite": "/index.html",
+	"exclude": ["*.{css,scss,js}"]
+    },
+    "platform" : {
+	"apiRuntime": "dotnet-isolated:6.0"
+    }
 }
