@@ -1,5 +1,6 @@
 ﻿using API.Configuration;
 using API.Repositories;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +24,7 @@ namespace API
                 {
                     configuration.GetSection("StockServiceOptions").Bind(settings);
                 });
-
+            builder.Services.AddMemoryCache();
 
             builder.Services.AddSingleton<IGetAnnualReturnsRepository, GetAnnualReturnsRepository>();
 

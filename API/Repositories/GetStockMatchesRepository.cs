@@ -29,7 +29,6 @@ namespace API.Repositories
                 var results = await dataResponse.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<StockSearchResults>(results)
                     ?? new StockSearchResults();
-
             }
             else return new StockSearchResults();
         }
