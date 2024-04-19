@@ -1,4 +1,5 @@
 ﻿using API.Configuration;
+using API.Factories;
 using API.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -25,7 +26,8 @@ namespace API
                     configuration.GetSection("StockServiceOptions").Bind(settings);
                 });
             builder.Services.AddMemoryCache();
-
+            builder.Services.AddSingleton<IGetStockMatchesResponseFactory, GetStockMatchesResponseFactory>();
+            builder.Services.AddSingleton<IGetStockMatchesRepository, GetStockMatchesRepository>();
             builder.Services.AddSingleton<IGetAnnualReturnsRepository, GetAnnualReturnsRepository>();
 
             //builder.Services.AddSingleton<ILoggerProvider, MyLoggerProvider>();

@@ -1,5 +1,7 @@
-﻿using API.DataTransferObjects;
+﻿using API.Configuration;
+using API.DataTransferObjects;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -9,21 +11,20 @@ namespace API.Repositories
     public class GetStockMatchesRepository : IGetStockMatchesRepository
     {
         private IHttpClientFactory _httpClientFactory;
-        private readonly IConfiguration configuration;
+        private readonly StockServiceOptions _settings;
 
         public GetStockMatchesRepository(
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IOptions<StockServiceOptions> options)
         {
             _httpClientFactory = httpClientFactory;
-            this.configuration = configuration;
+            _settings = options.Value;
         }
 
         public async Task<StockSearchResults> GetStockMatches(string symbol)
         {
             var client = _httpClientFactory.CreateClient("alphavantage");
-            var avConfig = configuration.GetSection("AlphaVantage");
-            var dataResponse = await client.GetAsync($"query?function=Symbol_Search&keywords={symbol}&apikey={avConfig["ApiKey"]}");
+            var dataResponse = await client.GetAsync($"query?function=Symbol_Search&keywords={symbol}&apikey={_settings.Apikey}");
             if (dataResponse.IsSuccessStatusCode)
             {
                 var results = await dataResponse.Content.ReadAsStringAsync();
