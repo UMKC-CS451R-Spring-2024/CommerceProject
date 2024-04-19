@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Client/wwwroot/data/investmentComparison.json
+.vscode/launch.json
+.vscode/settings.json
