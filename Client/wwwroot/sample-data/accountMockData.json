@@ -31,12 +31,19 @@
       16100,
       17350
 
+    ],
+
+    "financialAdvisorInfo": [
+      "Heinz Doofenshmirtz",
+      "images/DoofenshmirtzProfilePictureCropped.png",
+      "555-244-3423",
+      "curseYouPerryThePlatypus@gmail.com"
     ]
+
 
   },
 
   {
-    
     "accountName": "Joseph Joestar",
     "accounts": [
 
@@ -58,9 +65,34 @@
         "accountNumber": 1293849
       }
 
+    ],
+
+    "pastYearInvestments": [
+
+      20050,
+      21175,
+      22790,
+      24475,
+      5750,
+      6900,
+      7325,
+      9150,
+      12450,
+      14900,
+      16100,
+      17350
+
+    ],
+
+    "financialAdvisorInfo": [
+
+      "Heinz Doofenshmirtz",
+      "images/DoofenshmirtzProfilePictureCropped.png",
+      "555-343-3434",
+      "curseYouPerryThePlatypus@gmail.com"
+
     ]
 
   }
-
 
 ]

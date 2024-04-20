@@ -1,10 +1,12 @@
 ﻿@page "/dashboard"
 
 @inject HttpClient Http
+@inject NavigationManager navigationManager;
 @using CsvHelper;
 @using System.Globalization;
 @using Newtonsoft.Json;
-
+@using System.Net.Mail;
+@using System.Text;
 
 
 <PageTitle>Dashboard</PageTitle>
@@ -31,7 +33,7 @@ else
                     {
                         <tr>
                             <th style="background-color: rgb(240,240,240);" scope="row"></th>
-                            <td style="background-color: rgb(240,240,240);">@account.AccountType <br />@account.AccountNumber</td>
+                            <td style="background-color: rgb(240,240,240);">@account.AccountType <br />@CensorAccountNoDigits(account.AccountNumber)</td>
                             <td style="background-color: rgb(240,240,240);">$@account.AccountAmount.ToString("N0")</td>
                         </tr>
                         
@@ -51,7 +53,7 @@ else
 
 
         <div class="accounts-button">
-            <button type="button" class="btn btn-primary">View Accounts</button>
+            <button type="button" class="btn btn-primary" @onclick='() => NavigateToAccountAndActivityPage(userAccounts[0].AccountName, false)'>View Accounts</button>
         </div>
 
     </div> <!--jumbtron class-->
@@ -86,10 +88,34 @@ else
                             <td>Monthly Contribution</td>
                             <td>$500.00</td>
                         </tr>
+                        <tr>
+                            <th scope="row">1/31/24</th>
+                            <td>Brockerage</td>
+                            <td>Monthly Contribution</td>
+                            <td>$250.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2/13/24</th>
+                            <td>Roth IRA</td>
+                            <td>Program Fee</td>
+                            <td>-$25.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2/29/24</th>
+                            <td>Roth IRA</td>
+                            <td>Monthly Contribution</td>
+                            <td>$500.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2/29/24</th>
+                            <td>Brockerage</td>
+                            <td>Monthly Contribution</td>
+                            <td>$250.00</td>
+                        </tr>
 
                     </tbody>
                 </table>
-                <button type="button" class="btn btn-primary card-link">View Activity</button>
+                <button type="button" class="btn btn-primary card-link" @onclick='() => NavigateToAccountAndActivityPage(userAccounts[0].AccountName, true)'>View More</button>
             </div>
 
         </div> <!-- Account Activity card-->
@@ -108,14 +134,37 @@ else
         <div class="card" style="width: 18rem;">
             <div class="card-body">
                 <h5 class="card-title">My Financial Advisor</h5>
-                <h5>(Insert Some Name Here)</h5>
-                <button type="button" class="btn btn-primary card-link">Send a Message</button>
+                <img src=@userAccounts[0].FinancialAdvisorInfo[1] width="100" height="100"/>
+                <h4>@userAccounts[0].FinancialAdvisorInfo[0]</h4>
+                <h6><b>Phone:</b> @userAccounts[0].FinancialAdvisorInfo[2]</h6>
+                <h6><b>Email:</b> @userAccounts[0].FinancialAdvisorInfo[3]</h6>
+                <button type="button" class="btn btn-primary card-link" @onclick="OnShowModalClick">Send a Message</button>
             </div>
         </div>
 
     </div>
     
 }
+
+<!-- For the send message modal-->
+<Modal @ref="modal" Title="Send a Message">
+    <BodyTemplate>
+        <h4>Subject:</h4>
+        <input class="form-control" type="text" @bind-value="messageSubject" @bind-value:event="oninput">
+        <br />
+        <h4>Message Body:</h4>
+        <textarea class="form-control" id="exampleFormControlTextarea1" rows="8" @bind="messageContent"></textarea>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button Color="ButtonColor.Primary" @onclick="SendMessage">Send Message</Button>
+    </FooterTemplate>
+</Modal>
+
+<!-- Alert for if the user tries to send a message without a subject-->
+<ConfirmDialog @ref="sendMessageDialog"/>
+
+<ConfirmDialog @ref="messageSentDialog"/>
 
 
 
@@ -132,6 +181,12 @@ else
 
     private DailyStockData? dailyStockData;
 
+
+    private Modal modal = default!;
+    private string messageSubject = "";
+    private string messageContent = "";
+    private ConfirmDialog sendMessageDialog = default!;
+    private ConfirmDialog messageSentDialog = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -163,54 +218,28 @@ else
         }
 
 
-        /*
-        stockDataInfo = await Http.GetStringAsync("sample-data/intraday_60min_AMZN.csv");
-
-        List<string> stockRows = stockDataInfo.Split("\n").ToList();
-
-        
-        foreach (string s in stockRows)
-        {
-            Console.WriteLine(s);
-        }
-        
-
-        for (int i = 0; i < stockRows.Count - 1; i++)
-        {
-            if (i > 0)
-            {
-                List<string> stockStringList = stockRows[i].Split(",").ToList();
-
-                
-                Console.WriteLine(stockStringList[1]);
-                
-                Console.WriteLine();
-
-                StockData stockInfo = new StockData {
-                        Timestamp = stockStringList[0],
-                        Symbol = "AMZN",
-                        Open = Double.Parse(stockStringList[1]),
-                        High = Double.Parse(stockStringList[2]),
-                        Low = Double.Parse(stockStringList[3]),
-                        Close = Double.Parse(stockStringList[4]),
-                        Volume = Int32.Parse(stockStringList[5]),
-                };
-                stockDataList.Add(stockInfo);
-            }
-        }
-        */
-
-        /*
-        foreach(StockData sd in stockDataList)
-        {
-            Console.WriteLine(sd.Timestamp);
-        }
-        */
 
     }
-    
-    
-   
+
+    //Censor the first 3 digits in the account number.
+    public string CensorAccountNoDigits(long accountNumber)
+    {
+        string numToString = accountNumber.ToString();
+        StringBuilder sb = new StringBuilder(numToString);
+
+        for (int i = 0; i < sb.Length; i++)
+        {
+            if (i <= 2)
+            {
+                sb[i] = '*';
+            }
+        }
+
+        return sb.ToString();
+    }
+
+
+
 
     public double GetTotalInvestedAmount(AccountInformation userAccount)
     {
@@ -225,49 +254,63 @@ else
 
     }
 
-
-
-
-
-    /*
-    //For getting sample stock data
-    public async List<StockData> RetrieveStockData()
+    public void NavigateToAccountAndActivityPage(string accountName, bool showActivity)
     {
-        List<StockData> stockDataList = new List<StockData>();
-
-        //System.Diagnostics.Debug.WriteLine( Directory.GetCurrentDirectory());
-        //System.Diagnostics.Debug.WriteLine("fsdfsdfsdfsdfasf");
+        navigationManager.NavigateTo("/accounts/" + accountName + "/" + showActivity);
+    }
 
 
-        using (StreamReader reader = await new StreamReader(Http.GetStreamAsync("sample-data/intraday_60min_AMZN.csv")))
-        using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+
+
+
+
+    public async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    public async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+
+
+    private async void SendMessage()
+    {
+        if(messageSubject == "")
         {
-
-
-            csv.Read();
-            csv.ReadHeader();
-            while (csv.Read())
-            {
-                //Get data off of CSV into stockData
-                StockData stockData = new StockData
-                    {
-                        Timestamp = DateTime.Parse(csv.GetField<string>("timestamp")).ToString("HH-mm tt"),
-                        Symbol = "AMZN",
-                        Open = csv.GetField<double>("open"),
-                        High = csv.GetField<double>("high"),
-                        Low = csv.GetField<double>("low"),
-                        Close = csv.GetField<double>("close"),
-                        Volume = csv.GetField<int>("volume"),
-                    };
-
-            }
-
+            await ShowConfirmationAsync();
         }
-        return stockDataList;
+        else
+        {
+            await ShowMessageSentAsync();
+        }
 
+       
 
     }
-    */
+
+    private async Task ShowMessageSentAsync()
+    {
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText= "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "",
+            };
+
+        var confirmation = await sendMessageDialog.ShowAsync(
+            title: "Message sent",
+            message1: "Message has been successfully sent!",
+            confirmDialogOptions: options);
+    }
+
+    private async Task ShowConfirmationAsync()
+    {
+        var confirmation = await sendMessageDialog.ShowAsync(
+            title: "Message has no subject",
+            message1: "Are you sure you still want to send the message?");
+    }
 
 
 

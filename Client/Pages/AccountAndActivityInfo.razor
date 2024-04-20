@@ -1,0 +1,188 @@
+﻿@page "/accounts/{AccountName}/{ShowActivity:bool}"
+
+@inject HttpClient Http;
+
+@if(userAccounts != null)
+{
+    <h1>Account and Activity Information</h1>
+    <br /><br />
+    <Tabs EnableFadeEffect="true" NavStyle="NavStyle.Underline">
+        <Tab Title="Accounts" IsActive=@ShowActivity>
+            <Content>
+                <br />
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Account No.</th>
+                            <th scope="col">Account Type</th>
+                            <th scope="col">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Accounts account in myAccount.Accounts)
+                        {
+                            <tr>
+                                <td>@account.AccountNumber</td>
+                                <td>@account.AccountType</td>
+                                <td>$@account.AccountAmount.ToString("N0")</td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </Content>
+        </Tab>
+        <Tab Title="Activity" IsActive=@ShowActivity>
+            <Content>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Account</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">1/12/24</th>
+                            <td>Roth IRA</td>
+                            <td>Program Fee</td>
+                            <td>-$25.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">1/31/24</th>
+                            <td>Roth IRA</td>
+                            <td>Monthly Contribution</td>
+                            <td>$500.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">1/31/24</th>
+                            <td>Brockerage</td>
+                            <td>Monthly Contribution</td>
+                            <td>$250.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2/13/24</th>
+                            <td>Roth IRA</td>
+                            <td>Program Fee</td>
+                            <td>-$25.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2/29/24</th>
+                            <td>Roth IRA</td>
+                            <td>Monthly Contribution</td>
+                            <td>$500.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2/29/24</th>
+                            <td>Brockerage</td>
+                            <td>Monthly Contribution</td>
+                            <td>$250.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3/14/24</th>
+                            <td>Roth IRA</td>
+                            <td>Program Fee</td>
+                            <td>-$25.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3/31/24</th>
+                            <td>Roth IRA</td>
+                            <td>Monthly Contribution</td>
+                            <td>$500.00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3/31/24</th>
+                            <td>Brockerage</td>
+                            <td>Monthly Contribution</td>
+                            <td>$250.00</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </Content>
+        </Tab>
+    </Tabs>
+    
+    <br />
+    <h1>Documents</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Account</th>
+                <th scope="col">Document Type</th>
+                <th scope="col">Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>1/31</b></td>
+                <td>Brockerage</td>
+                <td>Statement</td>
+                <td><a href="/sample-data/SampleDoc.docx"><Icon Name="IconName.Download" Size="IconSize.x3" /></a></td>
+            </tr>
+            <tr>
+                <td><b>1/31</b></td>
+                <td>Roth IRA</td>
+                <td>Statement</td>
+                <td><a href="/sample-data/SampleDoc.docx"><Icon Name="IconName.Download" Size="IconSize.x3" /></a></td>
+            </tr>
+            <tr>
+                <td><b>2/29</b></td>
+                <td>Brockerage</td>
+                <td>Statement</td>
+                <td><a href="/sample-data/SampleDoc.docx"><Icon Name="IconName.Download" Size="IconSize.x3" /></a></td>
+            </tr>  
+            <tr>
+                <td><b>2/29</b></td>
+                <td>Roth IRA</td>
+                <td>Statement</td>
+                <td><a href="/sample-data/SampleDoc.docx"><Icon Name="IconName.Download" Size="IconSize.x3" /></a></td>
+            </tr>
+            <tr>
+                <td><b>3/31</b></td>
+                <td>Brockerage</td>
+                <td>Statement</td>
+                <td><a href="/sample-data/SampleDoc.docx"><Icon Name="IconName.Download" Size="IconSize.x3" /></a></td>
+            </tr>  
+            <tr>
+                <td><b>1/31</b></td>
+                <td>Roth IRA</td>
+                <td>Statement</td>
+                <td><a href="/sample-data/SampleDoc.docx"><Icon Name="IconName.Download" Size="IconSize.x3" /></a></td>
+            </tr>
+                
+        </tbody>
+    </table>
+    
+}
+
+
+
+
+@code {
+    [Parameter]
+    public string AccountName { get; set; }
+
+    [Parameter]
+    public bool ShowActivity { get; set; }
+
+    private AccountInformation[]? userAccounts;
+    private AccountInformation myAccount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userAccounts = await Http.GetFromJsonAsync<AccountInformation[]>("sample-data/accountMockData.json");
+
+        foreach (AccountInformation ai in userAccounts)
+        {
+            if (ai.AccountName.Equals(AccountName))
+            {
+                myAccount = ai;
+            }    
+        }
+    }
+
+}
