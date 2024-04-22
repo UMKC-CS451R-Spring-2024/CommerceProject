@@ -1,0 +1,69 @@
+﻿@page "/stocks/{StockTicker}"
+@using Newtonsoft.Json;
+@inject HttpClient httpClient
+
+@if (monthlyStockData != null)
+{
+    <div class="DailyDataAndHistoricInvestment">
+        <div>
+            <h2>Stock data for @StockTicker from the last year</h2>
+            <Client.Components.MonthlyStockDataGraph MonthlyStockData="monthlyStockData" />
+        </div>
+
+        <div>
+            <h2>Explore Investments</h2>
+            <Client.Components.HistoricInvestmentGraph StockTicker="StockTicker" />
+        </div>
+
+
+    </div>
+
+}
+
+
+
+
+
+
+@code {
+
+    [Parameter]
+    public string StockTicker { get; set; }
+
+    string apiKey = "KRY4J4J7NUX3OZG8";
+    string urlForMonthlyStockData;
+
+    private MonthlyStockData? monthlyStockData;
+
+    //Retrieve the Daily stock data from the API.
+    protected override async Task OnInitializedAsync()
+    {
+
+        using (HttpClient http = new HttpClient())
+        {
+
+            //urlForDailyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={StockTicker}&apikey={apiKey}";
+            urlForMonthlyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo";
+            HttpResponseMessage response = await http.GetAsync(urlForMonthlyStockData);
+
+            // Ensure the response was successful
+            response.EnsureSuccessStatusCode();
+
+            // Read the content of the response as a string
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            // Print the JSON data
+            //Console.WriteLine(responseBody);
+
+            monthlyStockData = JsonConvert.DeserializeObject<MonthlyStockData>(responseBody);
+
+            //Console.WriteLine(Double.Parse(monthlyStockData.MonthlyTimeSeries["2024-03-28"].High));
+
+
+
+        }
+
+
+    }
+
+}

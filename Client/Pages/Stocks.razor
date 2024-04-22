@@ -3,6 +3,7 @@
 @using System.Net;
 @using Newtonsoft.Json;
 @inject HttpClient httpClient
+@inject NavigationManager NavManager
 
 <h1>Stocks</h1>
 
@@ -15,18 +16,23 @@
 {
     <h1>Results</h1>
 
-    @for(int i = 0; i < searchResults.BestMatches.Length; i++)
+    @foreach (var result in searchResults.BestMatches)
     {
+
+
         <div class="card" style="width: 20rem">
             <div class="card-body">
-                <h3 class="card-title"><b>@searchResults.BestMatches[i].Name</b></h3>
-                <h6><u>Symbol:</u> @searchResults.BestMatches[i].Symbol</h6>
-                <h6><u>Type:</u> @searchResults.BestMatches[i].Type</h6>
-                <h6><u>Region:</u> @searchResults.BestMatches[i].Region</h6>
-                <h6><u>Market Open:</u> @searchResults.BestMatches[i].MarketOpen</h6>
-                <h6><u>Market Close:</u> @searchResults.BestMatches[i].MarketClose</h6>
-                <h6><u>Timezone:</u> @searchResults.BestMatches[i].Timezone</h6>
-                <h6><u>Currency:</u> @searchResults.BestMatches[i].Currency</h6>
+                <h3 class="card-title"><b>@result.Name</b></h3>
+                <h6><u>Symbol:</u> @result.Symbol</h6>
+                <h6><u>Type:</u> @result.Type</h6>
+                <h6><u>Region:</u> @result.Region</h6>
+                <h6><u>Market Open:</u> @result.MarketOpen</h6>
+                <h6><u>Market Close:</u> @result.MarketClose</h6>
+                <h6><u>Timezone:</u> @result.Timezone</h6>
+                <h6><u>Currency:</u> @result.Currency</h6>
+
+                <button @key=result type="button" class="btn btn-primary" @onclick='() => NavigateToStockPage(result.Symbol)'>View Stock Data and Investments</button>
+
             </div>
         </div>
 
@@ -48,7 +54,7 @@
 
         if (!searchQuery.Equals(""))
         {
-            url = $"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={searchQuery}&apikey={apiKey}";
+            //url = $"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={searchQuery}&apikey={apiKey}";
 
             using (HttpClient http = new HttpClient())
             {
@@ -73,8 +79,11 @@
         }
 
         
+    }
 
-        
+    public void NavigateToStockPage(string stockTicker)
+    {
+        NavManager.NavigateTo("/stocks/" + stockTicker);
     }
 
 
