@@ -5,57 +5,74 @@
 @inject HttpClient httpClient
 @inject NavigationManager NavManager
 
-<h1>Stocks</h1>
+<h1>Search for Stocks</h1>
+
+<h3 style="@(showErrorMessage ? "color: red" : "display:none")">Please Enter a Stock Ticker</h3>
+<br />
 
 <input class="form-control mr-sm-2" type="search" placeholder="Enter Stock Ticker" aria-label="Search" @bind-value="searchQuery" @bind-value:event="oninput" />
 <br />
-<button type="button" class="btn btn-primary" @onclick="getDailyStockData">Search</button>
+
+<button type="button" class="btn btn-primary" @onclick="getSearchResults">Search</button>
 <br />
 
 @if(searchResults != null)
 {
     <h1>Results</h1>
 
-    @foreach (var result in searchResults.BestMatches)
-    {
+    <div class="SearchResults" style="display: flex; justify-content: space-between;">
+        @foreach (var result in searchResults.BestMatches)
+        {
 
+            <div class="card" style="width: 20rem; margin-left: 20px;">
+                <div class="card-body">
+                    <h3 class="card-title"><b>@result.Name</b></h3>
+                    <h6><u>Symbol:</u> @result.Symbol</h6>
+                    <h6><u>Type:</u> @result.Type</h6>
+                    <h6><u>Region:</u> @result.Region</h6>
+                    <h6><u>Market Open:</u> @result.MarketOpen</h6>
+                    <h6><u>Market Close:</u> @result.MarketClose</h6>
+                    <h6><u>Timezone:</u> @result.Timezone</h6>
+                    <h6><u>Currency:</u> @result.Currency</h6>
 
-        <div class="card" style="width: 20rem">
-            <div class="card-body">
-                <h3 class="card-title"><b>@result.Name</b></h3>
-                <h6><u>Symbol:</u> @result.Symbol</h6>
-                <h6><u>Type:</u> @result.Type</h6>
-                <h6><u>Region:</u> @result.Region</h6>
-                <h6><u>Market Open:</u> @result.MarketOpen</h6>
-                <h6><u>Market Close:</u> @result.MarketClose</h6>
-                <h6><u>Timezone:</u> @result.Timezone</h6>
-                <h6><u>Currency:</u> @result.Currency</h6>
+                    <button @key=result type="button" class="btn btn-primary" @onclick='() => NavigateToStockPage(result.Symbol)'>View Stock Data and Investments</button>
 
-                <button @key=result type="button" class="btn btn-primary" @onclick='() => NavigateToStockPage(result.Symbol)'>View Stock Data and Investments</button>
-
+                </div>
             </div>
-        </div>
 
-        <br />
-    }
+            <br />
+        }
+    </div>
 
 }
+
+@if(searchResults != null && searchResults.BestMatches.Length == 0)
+{
+    <h1>No Reuslts Found</h1>
+}
+
 @code {
     string apiKey = "KRY4J4J7NUX3OZG8";
     string searchQuery = "";
     string url = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=tesco&apikey=demo";
 
+    //Store the search results into this object
     private StockSearchInfo? searchResults;
 
-    public List<StockSearchInfo> listOfSearchResults = new List<StockSearchInfo>(); 
+    //public List<StockSearchInfo> listOfSearchResults = new List<StockSearchInfo>();
 
-    public  async void getDailyStockData()
+    public bool showErrorMessage = false;
+
+    public  async void getSearchResults()
     {
 
         if (!searchQuery.Equals(""))
         {
+            showErrorMessage = false;
+
             //url = $"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={searchQuery}&apikey={apiKey}";
 
+            //Fetch the data from the AlphaVantage API
             using (HttpClient http = new HttpClient())
             {
                 HttpResponseMessage response = await http.GetAsync(url);
@@ -67,15 +84,19 @@
                 string responseBody = await response.Content.ReadAsStringAsync();
 
                 // Print the JSON data
-                Console.WriteLine(responseBody);
+                //Console.WriteLine(responseBody);
 
                 searchResults = JsonConvert.DeserializeObject<StockSearchInfo>(responseBody);
 
-                Console.WriteLine(searchResults.BestMatches[0].Symbol);
+                //Console.WriteLine(searchResults.BestMatches[0].Symbol);
 
 
             }
-            
+
+        }
+        else
+        {
+            showErrorMessage = true;
         }
 
         

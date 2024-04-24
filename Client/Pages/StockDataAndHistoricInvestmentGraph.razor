@@ -5,12 +5,12 @@
 @if (monthlyStockData != null)
 {
     <div class="DailyDataAndHistoricInvestment">
-        <div>
+        <div style="margin-left: 400px;">
             <h2>Stock data for @StockTicker from the last year</h2>
             <Client.Components.MonthlyStockDataGraph MonthlyStockData="monthlyStockData" />
         </div>
 
-        <div>
+        <div style="margin-left: 400px;">
             <h2>Explore Investments</h2>
             <Client.Components.HistoricInvestmentGraph StockTicker="StockTicker" />
         </div>
@@ -22,9 +22,6 @@
 
 
 
-
-
-
 @code {
 
     [Parameter]
@@ -33,12 +30,13 @@
     string apiKey = "KRY4J4J7NUX3OZG8";
     string urlForMonthlyStockData;
 
+    //Store the stock data into this object
     private MonthlyStockData? monthlyStockData;
 
     //Retrieve the Daily stock data from the API.
     protected override async Task OnInitializedAsync()
     {
-
+        //Fetch the data from the AlphaVantage API
         using (HttpClient http = new HttpClient())
         {
 
