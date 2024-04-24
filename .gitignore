@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /Client/wwwroot/data/investmentComparison.json
 .vscode/launch.json
 .vscode/settings.json
+/API/local.settings.json
