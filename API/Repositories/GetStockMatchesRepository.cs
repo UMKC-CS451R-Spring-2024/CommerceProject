@@ -24,7 +24,7 @@ namespace API.Repositories
         public async Task<StockSearchResults> GetStockMatches(string symbol)
         {
             var client = _httpClientFactory.CreateClient("alphavantage");
-            var dataResponse = await client.GetAsync($"query?function=Symbol_Search&keywords={symbol}&apikey={_settings.Apikey}");
+            var dataResponse = await client.GetAsync($"query?function=Symbol_Search&keywords={symbol}&apikey=DHS96ZUQ1B4IVPO2");
             if (dataResponse.IsSuccessStatusCode)
             {
                 var results = await dataResponse.Content.ReadAsStringAsync();

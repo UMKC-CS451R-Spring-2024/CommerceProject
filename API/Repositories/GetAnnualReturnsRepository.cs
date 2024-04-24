@@ -55,7 +55,7 @@ namespace API.Repositories
         {
             var client = _httpClientFactory.CreateClient("alphavantage");
             //var avConfig = stockServiceOptions.GetSection("AlphaVantage");
-            var dataResponse = await client.GetAsync($"query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol={symbol}&apikey={_settings.Apikey}");
+            var dataResponse = await client.GetAsync($"query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol={symbol}&apikey=DHS96ZUQ1B4IVPO2");
             if (dataResponse.IsSuccessStatusCode)
             {
                 var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyAdjusted>(
