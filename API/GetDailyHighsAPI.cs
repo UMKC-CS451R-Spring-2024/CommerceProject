@@ -59,7 +59,7 @@ namespace API
                 return new BadRequestObjectResult($"Invalid or missing symbol");
             }
 
-            if (_cache.TryGetValue($"GetStockMatches-{symbol}", out var cachedMatches)
+            if (_cache.TryGetValue($"GetDailyHighs-{symbol}", out var cachedMatches)
                 && cachedMatches is GetDailyHighsResponse)
                 return new OkObjectResult(cachedMatches);
 
@@ -67,7 +67,7 @@ namespace API
             //var response = _getStockMatchesResponseFactory.CreateStockInformation(results);
             if (response.DailyHighs.Any())
             {
-                _cache.Set($"GetStockMatches-{symbol}", response, TimeSpan.FromMinutes(5));
+                _cache.Set($"GetDailyHighs-{symbol}", response, TimeSpan.FromMinutes(5));
                 return new OkObjectResult(response);
             }
             else
