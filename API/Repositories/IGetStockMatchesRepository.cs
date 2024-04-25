@@ -1,10 +1,10 @@
-﻿using API.DataTransferObjects;
+﻿using API.DataTransferObjects.SymbolSearch;
 using System.Threading.Tasks;
 
 namespace API.Repositories
 {
     public interface IGetStockMatchesRepository
     {
-        Task<StockSearchResults> GetStockMatches(string symbol);
+        Task<DailyHighsSeriesResults> GetStockMatches(string symbol);
     }
 }

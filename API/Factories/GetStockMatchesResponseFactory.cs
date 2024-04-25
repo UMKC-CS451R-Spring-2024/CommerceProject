@@ -1,4 +1,4 @@
-﻿using API.DataTransferObjects;
+﻿using API.DataTransferObjects.SymbolSearch;
 using API.Responses;
 using System.Linq;
 
@@ -6,7 +6,7 @@ namespace API.Factories
 {
     public class GetStockMatchesResponseFactory : IGetStockMatchesResponseFactory
     {
-        public GetStockMatchesResponse CreateStockInformation(StockSearchResults stockSearchResults)
+        public GetStockMatchesResponse CreateStockInformation(DailyHighsSeriesResults stockSearchResults)
         {
             return new GetStockMatchesResponse
             {

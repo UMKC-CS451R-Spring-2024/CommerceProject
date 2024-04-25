@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace API.DataTransferObjects
+namespace API.DataTransferObjects.SymbolSearch
 {
-    public class StockSearchResults
+    public class DailyHighsSeriesResults
     {
-        public StockSearchResults()
+        public DailyHighsSeriesResults()
         {
             Results = Enumerable.Empty<StockSearchResult>();
         }

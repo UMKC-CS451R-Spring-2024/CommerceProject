@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace API.DataTransferObjects
+namespace API.DataTransferObjects.SymbolSearch
 {
     public class StockSearchResult
     {
