@@ -29,6 +29,7 @@ namespace API
             builder.Services.AddSingleton<IGetStockMatchesResponseFactory, GetStockMatchesResponseFactory>();
             builder.Services.AddSingleton<IGetStockMatchesRepository, GetStockMatchesRepository>();
             builder.Services.AddSingleton<IGetAnnualReturnsRepository, GetAnnualReturnsRepository>();
+            builder.Services.AddSingleton<IGetDailyHighsRepository,  GetDailyHighsRepository>();
 
             //builder.Services.AddSingleton<ILoggerProvider, MyLoggerProvider>();
         }

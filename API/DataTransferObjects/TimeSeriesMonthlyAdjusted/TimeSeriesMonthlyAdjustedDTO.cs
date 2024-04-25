@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using API.DataTransferObjects.TimeSeriesMonthlyAdjusted.TimeSeriesMonthlyAdjusted;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace API.DataTransferObjects
+namespace API.DataTransferObjects.TimeSeriesMonthlyAdjusted
 {
-    public class TimeSeriesMonthlyAdjusted
+    public class TimeSeriesMonthlyAdjustedDTO
     {
         [JsonProperty("Meta Data")]
         public MetaData MetaData { get; set; }

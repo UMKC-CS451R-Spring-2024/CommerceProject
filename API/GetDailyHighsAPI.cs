@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using API.Factories;
 using API.Repositories;
 using API.Responses;
 using Microsoft.AspNetCore.Http;
@@ -19,26 +18,23 @@ using Newtonsoft.Json;
 
 namespace API
 {
-    public class GetStockMatches
+    public class GetDailyHighsAPI
     {
+        private readonly ILogger<GetDailyHighsAPI> _logger;
         private readonly IMemoryCache _cache;
-        private readonly ILogger<GetStockMatches> _logger;
-        private readonly IGetStockMatchesRepository _repository;
-        private readonly IGetStockMatchesResponseFactory _getStockMatchesResponseFactory;
+        private readonly IGetDailyHighsRepository _repository;
 
-        public GetStockMatches(
-            IMemoryCache cache,
-            ILogger<GetStockMatches> log,
-            IGetStockMatchesRepository repository,
-            IGetStockMatchesResponseFactory getStockMatchesResponseFactory)
+        public GetDailyHighsAPI(
+            IMemoryCache cache, 
+            ILogger<GetDailyHighsAPI> log, 
+            IGetDailyHighsRepository repository)
         {
-            _cache = cache;
             _logger = log;
+            _cache = cache;
             _repository = repository;
-            _getStockMatchesResponseFactory = getStockMatchesResponseFactory;
         }
 
-        [FunctionName("GetStockMatches")]
+        [FunctionName("GetDailyHighs")]
         [OpenApiOperation(operationId: "Run", tags: new[] { "Stock Data" })]
         [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiParameter(name: "symbol", In = ParameterLocation.Query, Required = true,
@@ -47,7 +43,7 @@ namespace API
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain",
             bodyType: typeof(string), Description = "Invalid or missing symbol")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.NotFound, contentType: "text/plain",
-            bodyType: typeof(string), Description = "No matches could be found for this symbol")]
+            bodyType: typeof(string), Description = "No daily highs could be found for this symbol")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req)
         {
@@ -64,12 +60,12 @@ namespace API
             }
 
             if (_cache.TryGetValue($"GetStockMatches-{symbol}", out var cachedMatches)
-                && cachedMatches is GetStockMatchesResponse)
+                && cachedMatches is GetDailyHighsResponse)
                 return new OkObjectResult(cachedMatches);
 
-            var results = await _repository.GetStockMatches(symbol);
-            var response = _getStockMatchesResponseFactory.CreateStockInformation(results);
-            if (response.StockMatches.Any())
+            var response = await _repository.GetDailyHighs(symbol);
+            //var response = _getStockMatchesResponseFactory.CreateStockInformation(results);
+            if (response.DailyHighs.Any())
             {
                 _cache.Set($"GetStockMatches-{symbol}", response, TimeSpan.FromMinutes(5));
                 return new OkObjectResult(response);

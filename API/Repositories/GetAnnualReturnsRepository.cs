@@ -1,5 +1,4 @@
-﻿using API.DataTransferObjects;
-using API.Responses;
+﻿using API.Responses;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -9,20 +8,21 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using API.Configuration;
 using Microsoft.Extensions.Options;
+using API.DataTransferObjects.TimeSeriesMonthlyAdjusted;
 
 namespace API.Repositories
 {
     public class GetAnnualReturnsRepository : IGetAnnualReturnsRepository
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly StockServiceOptions _settings;
+        //private readonly StockServiceOptions _settings;
 
         public GetAnnualReturnsRepository(
-            IHttpClientFactory httpClientFactory,
-            IOptions<StockServiceOptions> options)
+            //IOptions<StockServiceOptions> options,
+            IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _settings = options.Value;
+            //_settings = options.Value;
         }
 
         public async Task<GetAnnualReturnsResponse> GetAnnualReturns(string symbol)
@@ -58,7 +58,7 @@ namespace API.Repositories
             var dataResponse = await client.GetAsync($"query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol={symbol}&apikey=DHS96ZUQ1B4IVPO2");
             if (dataResponse.IsSuccessStatusCode)
             {
-                var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyAdjusted>(
+                var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyAdjustedDTO>(
                     await dataResponse.Content.ReadAsStringAsync())?.MonthlyAdjustedTimeSeries.OrderBy(x => x.Key);
                 return dataResult;
             }
