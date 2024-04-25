@@ -41,10 +41,10 @@ namespace API.Repositories
             if (dataResponse.IsSuccessStatusCode)
             {
                 var dataResult = JsonConvert.DeserializeObject<DailyStockData>(
-                    await dataResponse.Content.ReadAsStringAsync())?.TimeSeriesDaily.OrderBy(x => x.Key);
+                    await dataResponse.Content.ReadAsStringAsync())?.TimeSeriesDaily.OrderByDescending(x => x.Key);
                 return dataResult;
             }
-            else return Enumerable.Empty<KeyValuePair<DateOnly, TimeSeriesDaily>>().OrderBy(x => 1);
+            else return Enumerable.Empty<KeyValuePair<DateOnly, TimeSeriesDaily>>().OrderByDescending(x => 1);
         }
 
         private IDictionary<DateOnly, double> ExtractDailyHighs(IOrderedEnumerable<KeyValuePair<DateOnly, TimeSeriesDaily>> data)

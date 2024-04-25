@@ -39,7 +39,7 @@ namespace API
         }
 
         [FunctionName("GetStockMatches")]
-        [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
+        [OpenApiOperation(operationId: "Run", tags: new[] { "Stock Data" })]
         [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
         [OpenApiParameter(name: "symbol", In = ParameterLocation.Query, Required = true,
             Type = typeof(string), Description = "The Stock Symbol you want to match")]

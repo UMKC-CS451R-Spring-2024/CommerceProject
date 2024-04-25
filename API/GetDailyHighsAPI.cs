@@ -35,9 +35,10 @@ namespace API
         }
 
         [FunctionName("GetDailyHighs")]
-        [OpenApiOperation(operationId: "Run", tags: new[] { "symbol" })]
+        [OpenApiOperation(operationId: "Run", tags: new[] { "Stock Data" })]
         [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
-        [OpenApiParameter(name: "name", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **Name** parameter")]
+        [OpenApiParameter(name: "symbol", In = ParameterLocation.Query, Required = true,
+            Type = typeof(string), Description = "The Stock Symbol you want to match")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "text/plain",
             bodyType: typeof(string), Description = "Invalid or missing symbol")]
