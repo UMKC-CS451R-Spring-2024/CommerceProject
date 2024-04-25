@@ -26,10 +26,11 @@
 
     </div>
 
-    <div style="width: 80%; margin: auto;">
-        <LineChart @ref="lineChart" Class="mb-4 unique-line-chart-width" />
+    <div style="margin-right: 50px;">
+        <LineChart @ref="lineChart" Width="800" Height="600" Class="mb-4 unique-line-chart-width" />
     </div>
 
+    <!--
     <div class="container">
         <div class="d-flex align-items-center mb-3">
             <div class="flex-grow-1 me-2">
@@ -41,6 +42,7 @@
             </Button>
         </div>
     </div>
+    -->
 
 </EditForm>
 
@@ -56,13 +58,18 @@
     List<double> dataValues { get; set; } = new List<double>();
     private List<Dictionary<int, double>> returnsDictionaries = new List<Dictionary<int, double>>();
 
+    /*
     [Required]
     [StringLength(10, ErrorMessage = "Ticker symbol is too long.")]
     private string stockTicker = ""; // Variable to hold the stock ticker
+    */
 
     [Required]
     [Range(0, double.MaxValue, ErrorMessage = "Please enter a valid amount.")]
     public double initialInvestment { get; set; }
+
+    [Parameter]
+    public string StockTicker { get; set; }
 
 
     // Initialization before user chooses a graph
@@ -209,7 +216,7 @@
 
     private async Task HandleValidSubmit()
     {
-        await FetchAndDisplayAnnualReturns(stockTicker);
+        await FetchAndDisplayAnnualReturns(StockTicker);
     }
 
     private async Task UpdateChartDataAsync()

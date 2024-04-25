@@ -1,0 +1,229 @@
+﻿@using BlazorBootstrap
+@using Color = System.Drawing.Color
+
+<LineChart @ref="lineChart" Width="800" Height="400" Class="mb-4" />
+
+@code {
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+
+
+    public List<String> GetXAxisLabels()
+    {
+        List<string> dates = new List<string>();
+
+        //Get the current year and month.
+        DateTime currentDate = DateTime.Now;
+        int year = currentDate.Year;
+        int month = currentDate.Month;
+
+        //Go back 1 year
+        year -= 1;
+
+        //Get the number of days for each month. 
+        DateTime myDate = DateTime.Now;
+        for(int i = 0; i < 12; i++)
+        {
+
+            dates.Add(GetDateEntry(myDate, ref year, ref month, i));
+        }
+
+
+        return dates;
+    }
+
+    public List<double> GetYAxisLabels()
+    {
+        List<double> highestStockPriceOfEachMonth = new List<double>();
+
+        //Get the current year and month.
+        DateTime currentDate = DateTime.Now;
+        int year = currentDate.Year;
+        int month = currentDate.Month;
+
+        //Go back 1 year
+        year--;
+
+        //Get the number of days for each month.
+        DateTime myDate = DateTime.Now;
+        for (int i = 0; i < 12; i++)
+        {
+
+            highestStockPriceOfEachMonth.Add(Double.Parse(MonthlyStockData.MonthlyTimeSeries[GetDateEntry(myDate, ref year, ref month, i)].High));
+
+            /*
+            if (month >= 13)
+            {
+                month = 1;
+                year++;
+            }
+
+            string daysInMonth = DateTime.DaysInMonth(year, month).ToString();
+            string currentDateString;
+
+            currentDate = DateTime.Now;
+            currentDate = currentDate.AddYears(-1).AddMonths(i);
+
+
+
+            currentDateString = currentDate.ToString("yyyy-MM-dd");
+            currentDateString = currentDateString.Substring(0, 8);
+            currentDateString = currentDateString.Insert(8, daysInMonth);
+
+            myDate = DateTime.Parse(currentDateString);
+
+            if (myDate.DayOfWeek.ToString().Equals("Saturday"))
+            {
+                myDate = myDate.AddDays(-1);
+
+            }
+            else if (myDate.DayOfWeek.ToString().Equals("Sunday"))
+            {
+                myDate = myDate.AddDays(-2);
+
+            }
+
+
+            if (myDate.ToString("yyyy-MM-dd").Equals("2024-03-29"))
+            {
+
+                myDate = myDate.AddDays(-1);
+            }
+
+            highestStockPriceOfEachMonth.Add(Double.Parse(MonthlyStockData.MonthlyTimeSeries[myDate.ToString("yyyy-MM-dd")].High));
+
+            month++;
+            */
+
+        }
+
+        return highestStockPriceOfEachMonth;
+
+    }
+
+    private string GetDateEntry(DateTime myDate, ref int year, ref int month, int i)
+    {
+        //If month == 13, reset month back to 1 and increment the year.
+        if (month >= 13)
+        {
+            month = 1;
+            year += 1;
+        }
+
+        //Get the number of days given the year and a month
+        string daysInMonth = DateTime.DaysInMonth(year, month).ToString();
+        string currentDateString;
+
+        //Starting from the present month and year, go back a year, then move forward i months.
+        DateTime currentDate = DateTime.Now;
+        currentDate = currentDate.AddYears(-1).AddMonths(i);
+
+        //For each month, get the current string of each month and then replace the day with the number of days that the month has.
+        currentDateString = currentDate.ToString("yyyy-MM-dd");
+        currentDateString = currentDateString.Substring(0, 8);
+        currentDateString = currentDateString.Insert(8, daysInMonth);
+
+        //Parse the date into a DateTime object.
+        myDate = DateTime.Parse(currentDateString);
+
+        //If the day is a Saturday, go back 1 day. If the day is a Sunday, go back 2 days.
+        if (myDate.DayOfWeek.ToString().Equals("Saturday"))
+        {
+            myDate = myDate.AddDays(-1);
+
+        }
+        else if (myDate.DayOfWeek.ToString().Equals("Sunday"))
+        {
+            myDate = myDate.AddDays(-2);
+
+        }
+
+        //This was a holiday.
+        if (myDate.ToString("yyyy-MM-dd").Equals("2024-03-29"))
+        {
+            myDate = myDate.AddDays(-1);
+        }
+
+
+        month++;
+
+        return myDate.ToString("yyyy-MM-dd");
+    }
+
+    public double getMinimumYValue()
+    {
+        List<double> values = GetYAxisLabels();
+        double minValue = values[0];
+
+        for (int i = 1; i < values.Count; i++)
+        {
+            if (minValue > values[i])
+            {
+                minValue = values[i];
+            }
+        }
+        minValue = (int)(Math.Floor(minValue / 10.0d) * 10);
+        return minValue;
+    }
+
+
+    protected override void OnInitialized()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+
+        var labels = GetXAxisLabels();
+        var datasets = new List<IChartDataset>();
+
+        var dataset1 = new LineChartDataset()
+            {
+                Label = "Daily Highest Stock Prices from the last year",
+                Data = GetYAxisLabels(),
+                BackgroundColor = new List<string> { colors[0] },
+                BorderColor = new List<string> { colors[0] },
+                BorderWidth = new List<double> { 2 },
+                HoverBorderWidth = new List<double> { 4 },
+                PointBackgroundColor = new List<string> { colors[0] },
+                PointRadius = new List<int> { 0 }, // hide points
+                PointHoverRadius = new List<int> { 4 },
+            };
+        datasets.Add(dataset1);
+
+
+
+        chartData = new ChartData
+            {
+                Labels = labels,
+                Datasets = datasets
+            };
+
+        lineChartOptions = new();
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+        lineChartOptions.Scales.X.Title.Text = "Dates";
+        lineChartOptions.Scales.X.Title.Display = true;
+
+        lineChartOptions.Scales.Y.Title.Text = "Stock Price USD";
+        lineChartOptions.Scales.Y.Title.Display = true;
+        lineChartOptions.Scales.Y.Min = getMinimumYValue();
+
+        lineChartOptions.Plugins.Title.Text = "Highest Stock Price";
+        lineChartOptions.Plugins.Title.Display = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+
+
+    [Parameter]
+    public MonthlyStockData MonthlyStockData { get; set; }
+
+}
