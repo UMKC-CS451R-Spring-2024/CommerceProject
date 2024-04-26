@@ -1,11 +1,10 @@
-using Client.Repositories.Settings.Responses;
-using Client.Repositories.Settings.Requests;
+using Client.Repositories.Settings.Data;
 
 namespace Client.Repositories.Settings
 {
     public interface ISettingsRepository
     {
-        Task<GetSettingsResponse> GetSettings(string UserId);
-        Task<UpdateSettingsResponse> UpdateSettings(string UserId, UpdateSettingsRequest request);
+        Task<UserSettings> GetSettings(string UserId);
+        Task<UserSettings> UpdateSettings(string UserId, UserSettings request);
     }
 }
