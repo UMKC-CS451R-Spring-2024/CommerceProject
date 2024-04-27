@@ -15,7 +15,7 @@ namespace Client.Repositories.Stock
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task<GetAnnualReturnsResponse> GetAnnualReturns(string symbol)
+        public virtual async Task<GetAnnualReturnsResponse> GetAnnualReturns(string symbol)
         {
             var client = httpClientFactory.CreateClient("Stock");
             var dataResponse = await client.GetAsync($"GetAnnualReturns?symbol={symbol}");
