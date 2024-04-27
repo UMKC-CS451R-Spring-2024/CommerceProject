@@ -1,8 +1,10 @@
 @page "/budget"
 
 <div class="container my-4">
-    <h2 class="text-center mb-4">The 50/30/20 budget</h2>
-    <p class="text-center mb-4">Find out how this budgeting approach applies to your money.</p>
+    <div class="budget-banner text-center mb-4 p-4 shadow-sm">
+        <h2>The 50/30/20 Budget</h2>
+        <p>Find out how this budgeting approach applies to your money.</p>
+    </div>
     <hr class="mb-4">
 
     <!-- Input for Monthly Income -->
@@ -11,41 +13,53 @@
             <label for="monthlyIncome" class="form-label">Monthly after-tax income</label>
             <div class="input-group mb-3">
                 <span class="input-group-text">$</span>
-                <input @bind="income" type="number" class="form-control" id="monthlyIncome" placeholder="0">
-                <button @onclick="CalculateBudget" class="btn btn-outline-secondary">Calculate</button>
+                <input @bind="income" @bind:event="oninput" type="number" class="form-control" id="monthlyIncome" placeholder="0">
+                <button @onclick="CalculateBudget" class="btn btn-outline-secondary" disabled="@(!IsValidIncome)">Calculate</button>
             </div>
+            @if (!IsValidIncome)
+            {
+                <div class="text-danger">Please enter a positive amount.</div>
+            }
         </div>
     </div>
 
     <!-- Display of Budget Categories -->
     <h4 class="mb-3">Your 50/30/20 numbers:</h4>
-    <div class="row text-center">
-        <div class="container my-5">
-            <div class="card-group">
-                <div class="card budget-needs-box m-2">
-                    <div class="card-header budget-needs-header text-white">Needs</div>
-                    <div class="card-body">
-                        <h5 class="card-title">50% of budget</h5>
-                        <p class="card-text">@needsAmount.ToString("C")</p>
-                    </div>
-                    <div class="card-footer text-muted">Essentials like rent, bills and groceries</div>
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <!-- Card for Needs -->
+            <div class="card budget-needs-box m-2">
+                <img src="/images/needs_icon.png" class="card-img-top" alt="Needs">
+                <div class="card-header budget-needs-header text-white">Needs</div>
+                <div class="card-body">
+                    <h5 class="card-title">50% of budget</h5>
+                    <p class="card-text">@needsAmount.ToString("C")</p>
                 </div>
-                <div class="card budget-wants-box m-2">
-                    <div class="card-header budget-wants-header text-white">Wants</div>
-                    <div class="card-body">
-                        <h5 class="card-title">30% of budget</h5>
-                        <p class="card-text">@wantsAmount.ToString("C")</p>
-                    </div>
-                    <div class="card-footer text-muted">Lifestyle choices</div>
+                <div class="card-footer text-muted">Essentials such as rent, electricity, water, bills and groceries</div>
+            </div>
+        </div>
+        <div class="col-md-4 text-center">
+            <!-- Card for Wants -->
+            <div class="card budget-wants-box m-2">
+                <img src="/images/wants_icon.png" class="card-img-top" alt="Wants">
+                <div class="card-header budget-wants-header text-white">Wants</div>
+                <div class="card-body">
+                    <h5 class="card-title">30% of budget</h5>
+                    <p class="card-text">@wantsAmount.ToString("C")</p>
                 </div>
-                <div class="card budget-savings-box m-2">
-                    <div class="card-header budget-savings-header text-white">Savings/Investing</div>
-                    <div class="card-body">
-                        <h5 class="card-title">20% of budget</h5>
-                        <p class="card-text">@savingsAmount.ToString("C")</p>
-                    </div>
-                    <div class="card-footer text-muted">Future planning - savings, retirement, and investing</div>
+                <div class="card-footer text-muted">Lifestyle choices like dining out, entertainment, and shopping</div>
+            </div>
+        </div>
+        <div class="col-md-4 text-center">
+            <!-- Card for Savings/Investing -->
+            <div class="card budget-savings-box m-2">
+                <img src="/images/savings_icon.png" class="card-img-top" alt="Savings/Investing">
+                <div class="card-header budget-savings-header text-white">Savings/Investing</div>
+                <div class="card-body">
+                    <h5 class="card-title">20% of budget</h5>
+                    <p class="card-text">@savingsAmount.ToString("C")</p>
                 </div>
+                <div class="card-footer text-muted">Future planning like savings, retirement, and investing</div>
             </div>
         </div>
     </div>
