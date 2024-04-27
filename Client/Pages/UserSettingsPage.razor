@@ -1,0 +1,60 @@
+@page "/settings"
+
+<AuthorizeView>
+    <Authorized>
+        <div id="heading">
+            <p>Hello, @context.User.Identity?.Name!</p>
+            <h1>Your settings:</h1>
+        </div>
+
+        <div id="settingsInput">
+            @if (!isLoaded)
+            {
+                <p>Loading settings...</p>
+            }
+            else if (errorThrown)
+            {
+                <p>Error in fetching data: @errorText</p>
+            }
+            else
+            {
+                <p>Settings loaded successfully</p>
+                // Include form for updating settings or additional content here.
+                @* <EditForm Model="@UserSettings" OnValidSubmit="UpdateSettingsAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div>
+            <label>Age:</label>
+            <InputNumber @bind-Value="Settings.Age" />
+            </div>
+
+            <div>
+            <label>Retirement Age:</label>
+            <InputNumber @bind-Value="Settings.RetirementAge" />
+            </div>
+
+            <div>
+            <label>Monthly Income:</label>
+            <InputNumber @bind-Value="Settings.MonthlyIncome" />
+            </div>
+
+            <div>
+            <label>Savings:</label>
+            <InputNumber @bind-Value="Settings.CurrentSavings" />
+            </div>
+
+            <div>
+            <label>Monthly Contributions:</label>
+            <InputNumber @bind-Value="Settings.MonthlyContributions" />
+            </div>
+
+            <button type="submit">Update Settings</button>
+            </EditForm> *@
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <h1>You're logged out.</h1>
+    </NotAuthorized>
+</AuthorizeView>
