@@ -1,99 +1,70 @@
-﻿@*<h3>HistoricInvestmentGraph</h3>*@
-
+﻿
 @using BlazorBootstrap
-@using Client.Repositories.Stock;
+@using Client.Repositories.Stock
 @using Color = System.Drawing.Color
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using Newtonsoft.Json
-@using System;
+@using System
 
-@* @inject HttpClient httpClient *@
 @inject IStockRepository stockRepository
 
 <EditForm Model="@this" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="container">
-
         <div class="d-flex align-items-center mb-3">
             <div class="flex-grow-1 me-2">
                 <label for="initialInvestment" class="form-label">Initial Investment ($):</label>
-                <InputNumber @bind-Value="initialInvestment" class="form-control" id="initialInvestment" />
+                <InputNumber @bind-Value="initialInvestment" class="form-control" id="initialInvestment" min="0.01" />
             </div>
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Size="Size.Large" @onclick=" () => UpdateChartDataAsync()">Update Initial Investment Amount</Button>
+            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Size="Size.Large">Update Investment Amount</Button>
         </div>
-
     </div>
-
-    <div style="margin-right: 50px;">
+    <div>
         <LineChart @ref="lineChart" Width="800" Height="600" Class="mb-4 unique-line-chart-width" />
     </div>
-
-    <!--
-    <div class="container">
-        <div class="d-flex align-items-center mb-3">
-            <div class="flex-grow-1 me-2">
-                <label for="stockTicker" class="form-label">Investment Ticker Symbol to Add to Graph:</label>
-                <InputText @bind-Value="stockTicker" class="form-control" id="stockTicker" />
-            </div>
-            <Button Type="ButtonType.Submit" Color="ButtonColor.Primary" Size="Size.Large" @onclick="HandleValidSubmit">
-                Add New Investment
-            </Button>
-        </div>
-    </div>
-    -->
-
 </EditForm>
-
 
 @code {
     private LineChart lineChart = default!;
     private LineChartOptions lineChartOptions = default!;
     private ChartData chartData = default!;
-    private string apiBaseUrl = "https://localhost:7283";
-    private int lineCount;
     private List<string>? labels;
-    private List<LineChartDataset> datasets = new List<LineChartDataset>();
-    List<double> dataValues { get; set; } = new List<double>();
-    private List<Dictionary<int, double>> returnsDictionaries = new List<Dictionary<int, double>>();
-
-    /*
-    [Required]
-    [StringLength(10, ErrorMessage = "Ticker symbol is too long.")]
-    private string stockTicker = ""; // Variable to hold the stock ticker
-    */
-
-    [Required]
-    [Range(0, double.MaxValue, ErrorMessage = "Please enter a valid amount.")]
-    public double initialInvestment { get; set; }
+    private List<double> dataValues { get; set; } = new List<double>();
 
     [Parameter]
-    public string StockTicker { get; set; }
+    public string StockTicker { get; set; } = "IBM"; // Default stock ticker to change
 
+    [Required(ErrorMessage = "Initial investment is required")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Initial investment must be greater than $0.")]
+    public double initialInvestment { get; set; } = 10000; // Default initial investment value
 
-    // Initialization before user chooses a graph
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        var initialInvestment = 10000;
-        labels = Enumerable.Range(2000, 25).Select(year => year.ToString()).ToList();
+        var stockData = await stockRepository.GetAnnualReturns(StockTicker);
+        InitializeChartData(stockData.AnnualReturns, StockTicker);
+    }
+
+    private void InitializeChartData(Dictionary<int, double> annualReturns, string symbol)
+    {
         var colors = ColorBuilder.CategoricalTwelveColors;
-        var savingsAcct = SavingsAccountDictionary();
-        returnsDictionaries.Add(savingsAcct);
-        dataValues = CalculateReturns(initialInvestment, savingsAcct);
-        System.Diagnostics.Debug.WriteLine("Data Values: " + string.Join(", ", dataValues));
+        var calculatedReturns = CalculateReturns(initialInvestment, annualReturns);
+        labels = calculatedReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
+        dataValues = calculatedReturns.Values.ToList();
 
         var dataset = new LineChartDataset()
             {
-                Label = "Savings Account",
+                Label = "Investment Growth",
                 Data = dataValues,
                 BackgroundColor = new List<string> { colors[0] },
                 BorderColor = new List<string> { colors[0] },
                 BorderWidth = new List<double> { 2 },
                 HoverBorderWidth = new List<double> { 4 },
                 PointBackgroundColor = new List<string> { colors[0] },
-                PointRadius = new List<int> { 0 },
-                PointHoverRadius = new List<int> { 4 },
+                PointRadius = new List<int> { 3 },
+                PointHoverRadius = new List<int> { 5 },
+                Fill = false
             };
 
         chartData = new ChartData
@@ -113,129 +84,124 @@
             lineChartOptions.Scales.Y!.Title!.Text = "Cumulative Amount ($)";
             lineChartOptions.Scales.Y!.Title!.Display = true;
 
-            lineChartOptions.Plugins.Title!.Text = "Investment Growth Over 25 Years";
+            lineChartOptions.Plugins.Title!.Text = $"Growth of ${initialInvestment}";
             lineChartOptions.Plugins.Title.Display = true;
-
         };
-        datasets.Add(dataset);
-        lineCount++;
     }
 
-
-    public Dictionary<int, double> SavingsAccountDictionary()
+    private Dictionary<int, double> CalculateReturns(double initialInvestment, Dictionary<int, double> annualReturns)
     {
-        const double interestRate = 2.0; // 2% annual interest rate
-        var savingsAccount = new Dictionary<int, double>();
-
-        for (int year = 2000; year <= 2024; year++)
-        {
-            // Assign a static 2% return rate for each year
-            savingsAccount.Add(year, interestRate);
-        }
-
-        return savingsAccount;
-    }
-
-    public static List<double> CalculateReturns(double initialInvestment, Dictionary<int, double> investmentDict)
-    {
-        var calculatedReturns = new List<double>();
-        double currentAmount = initialInvestment; // This will track the cumulative amount
-
-        for (int year = 2000; year <= 2024; year++)
-        {
-            if (investmentDict.TryGetValue(year, out double returnRate))
-            {
-                // Calculate the cumulative amount for the year
-                currentAmount *= (1 + (returnRate / 100)); // Compounds the investment
-                calculatedReturns.Add(currentAmount); // Add the updated cumulative amount
-            }
-        }
-        return calculatedReturns;
-    }
-
-    public void AddLineToChart(Dictionary<int, double> annualReturnsDict, string lineLabel)
-    {
-        // Ensure that the years are sorted in ascending order for the graph
-        var orderedYears = annualReturnsDict.Keys.OrderBy(year => year).ToList();
-
-        // Now calculate the cumulative returns for these years
+        var calculatedReturns = new Dictionary<int, double>();
         double currentAmount = initialInvestment;
-        var dataValues = new List<double>();
 
-        foreach (var year in orderedYears)
+        foreach (var year in annualReturns.Keys.OrderBy(y => y))
         {
-            if (year >= 2000 && year <= 2024)
-            {
-                currentAmount *= (1 + (annualReturnsDict[year] / 100)); // Compounds the investment
-                dataValues.Add(currentAmount); // Add the updated cumulative amount
-            }
+            currentAmount *= 1 + annualReturns[year] / 100;
+            calculatedReturns.Add(year, currentAmount);
         }
 
-        // Create the new dataset with the label and calculated data values
-        var newLineDataset = new LineChartDataset
-            {
-                Label = lineLabel,
-                Data = dataValues,
-                // Other styling properties would be set here
-            };
-
-        datasets.Add(newLineDataset);
-        returnsDictionaries.Add(annualReturnsDict);
-        lineCount++;
-        // Refresh the chart here, if necessary
-    }
-
-
-
-    private async Task FetchAndDisplayAnnualReturns(string symbol)
-    {
-        // var url = $"{apiBaseUrl}/stock?symbol={symbol}";
-        try
-        {
-            var annualReturns = await stockRepository.GetAnnualReturns(symbol);
-
-            if (annualReturns.AnnualReturns.Any())
-            {
-                // Add the annual returns data as a new line on the chart
-                AddLineToChart(annualReturns.AnnualReturns, annualReturns.Symbol);
-                // Update the chart to reflect new data
-                StateHasChanged();
-            }
-            else
-            {
-                // Handle the error response here
-                Console.WriteLine("Error fetching data ");
-            }
-        }
-        catch (HttpRequestException e)
-        {
-            // Handle exceptions or log the error
-            Console.WriteLine("Exception caught: " + e.Message);
-        }
+        return calculatedReturns;
     }
 
     private async Task HandleValidSubmit()
     {
-        await FetchAndDisplayAnnualReturns(StockTicker);
+        if (initialInvestment > 0)
+        {
+            await UpdateChartDataAsync();
+        }
     }
 
     private async Task UpdateChartDataAsync()
     {
-        for (int i = 0; i < datasets.Count; i++)
+        // Since this method is meant to update chart data, let's fetch the latest returns
+        var stockData = await stockRepository.GetAnnualReturns(StockTicker);
+        var calculatedReturns = CalculateReturns(initialInvestment, stockData.AnnualReturns);
+        dataValues = calculatedReturns.Values.ToList();
+
+        // Update the chart with the new data
+        if (chartData.Datasets.FirstOrDefault() is LineChartDataset lineChartDataset)
         {
-            var dataset = datasets[i];
-            var annualReturnsDict = returnsDictionaries[i]; // Get the corresponding dictionary of returns
-
-            // Calculate new returns based on the corresponding dictionary
-            var updatedReturns = CalculateReturns(initialInvestment, annualReturnsDict);
-            dataset.Data = updatedReturns;
+            lineChartDataset.Data = dataValues;
+            await lineChart.UpdateAsync(chartData, lineChartOptions);
         }
-
-        // Now update the LineChart with the new data for all datasets
-        await lineChart.UpdateAsync(chartData, lineChartOptions);
+        else
+        {
+            throw new InvalidOperationException("Dataset is not of the expected type.");
+        }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+    }
+}
 
+    @*
+    private async Task UpdateChartDataAsync()
+    {
+        // Retrieve the mock annual returns for the chart update
+        var mockReturns = GetMockAnnualReturns();
+        var calculatedReturns = CalculateReturns(initialInvestment, mockReturns);
+        dataValues = calculatedReturns.Values.ToList();
+
+        if (chartData.Datasets.First() is LineChartDataset lineChartDataset)
+        {
+            lineChartDataset.Data = dataValues;
+            await lineChart.UpdateAsync(chartData, lineChartOptions);
+        }
+        else
+        {
+            throw new InvalidOperationException("Dataset is not of the expected type.");
+        }
+    }
+
+        protected override void OnInitialized()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+        var mockReturns = GetMockAnnualReturns();
+        var calculatedReturns = CalculateReturns(initialInvestment, mockReturns);
+        labels = calculatedReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
+        dataValues = calculatedReturns.Values.ToList();
+
+        var dataset = new LineChartDataset()
+            {
+                Label = "Investment Growth",
+                Data = dataValues,
+                BackgroundColor = new List<string> { colors[0] }, // Dark green
+                BorderColor = new List<string> { colors[0] },
+                BorderWidth = new List<double> { 2 },
+                HoverBorderWidth = new List<double> { 4 },
+                PointBackgroundColor = new List<string> { colors[0] },
+                PointRadius = new List<int> { 3 },
+                PointHoverRadius = new List<int> { 5 },
+                Fill = false
+            };
+
+        chartData = new ChartData
+            {
+                Labels = labels,
+                Datasets = new List<IChartDataset> { dataset }
+            };
+
+        lineChartOptions = new LineChartOptions();
+        {
+            lineChartOptions.Responsive = true;
+            lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+            lineChartOptions.Scales.X!.Title!.Text = "Year";
+            lineChartOptions.Scales.X!.Title!.Display = true;
+
+            lineChartOptions.Scales.Y!.Title!.Text = "Cumulative Amount ($)";
+            lineChartOptions.Scales.Y!.Title!.Display = true;
+
+            lineChartOptions.Plugins.Title!.Text = $"Growth of ${initialInvestment}";
+            lineChartOptions.Plugins.Title.Display = true;
+        };
+    }
+    *@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
