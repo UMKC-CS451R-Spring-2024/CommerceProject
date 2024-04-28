@@ -95,3 +95,60 @@ a, .btn-link {
     background-color: #32CD32; /* LimeGreen */
     color: white;
 }
+
+.budget-banner {
+    background-color: #013A6B; /* A deep blue background often associated with stability in finance */
+    color: #ffffff; /* White text for better contrast and readability */
+    border-left: 10px solid #0467D1; /* A brighter blue left border for a subtle highlight */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center; /* Center the text if it matches your design */
+    padding: 2rem 0; /* More padding for a larger banner presence */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for a subtle depth */
+}
+
+    .budget-banner h2 {
+        font-size: 2.5rem; /* Slightly larger font size for the heading for more impact */
+        font-weight: 600; /* Bold but not too heavy; adjust as needed */
+        margin-bottom: 1rem; /* More space below the heading */
+    }
+
+    .budget-banner p {
+        font-size: 1.25rem; /* Retain the current size, which is readable */
+        color: #BFD7ED; /* A softer shade of blue for less critical information */
+        margin-bottom: 0; /* If you want to remove extra space below the paragraph */
+    }
+
+hr {
+    border-top: 3px solid #0467D1; /* Thicker and colored hr to match the left border */
+    max-width: 60%; /* Limit the width of hr if the design calls for it */
+    margin: 2rem auto; /* Center the hr element and add vertical space */
+}
+
+/* Style for the budget calculate button */
+.input-group-text {
+    background-color: #0467D1; /* Matching the button color */
+    color: #fff; /* White text for readability */
+    border: 1px solid #0467D1; /* Border color to match the background */
+}
+
+.form-control {
+    border: 1px solid #0467D1; /* Border color to match the input group text */
+}
+
+/* Style for the calculate button */
+.btn-outline-secondary {
+    color: #fff; /* White text */
+    background-color: #013A6B; /* Deep blue background for a professional look */
+    border-color: #013A6B; /* Border color to match the background */
+}
+
+    .btn-outline-secondary:hover {
+        color: #013A6B; /* Deep blue text on hover for contrast */
+        background-color: #fff; /* White background on hover */
+        border-color: #013A6B; /* Border color remains the same on hover */
+    }
+
+/* Optional: Add a shadow to the button for depth (remove if flat design is preferred) */
+.btn-outline-secondary {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
