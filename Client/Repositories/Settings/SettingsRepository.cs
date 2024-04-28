@@ -1,16 +1,29 @@
 using System.Net.Http.Json;
+using System.Net.Mime;
+using System.Text;
+using System.Text.Json;
 using Client.Repositories.Settings.Data;
 using Newtonsoft.Json;
 
 namespace Client.Repositories.Settings
 {
+    public class UserSettingsWrapper
+    {
+        [JsonProperty("value")]
+        public List<UserSettings> UserSettingsList { get; set; }
+    }
+
     public class SettingsRepository : ISettingsRepository
     {
         private readonly IHttpClientFactory httpClientFactory;
+        private readonly JsonSerializerOptions jsonOptions;
 
         public SettingsRepository(IHttpClientFactory httpClientFactory)
         {
             this.httpClientFactory = httpClientFactory;
+            jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            jsonOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            jsonOptions.PropertyNamingPolicy = null;
         }
 
         public async Task<UserSettings> GetSettings(string UserId)
@@ -19,16 +32,16 @@ namespace Client.Repositories.Settings
             var dataResponse = await client.GetAsync($"Id/{UserId}");
             if (dataResponse.IsSuccessStatusCode)
             {
-                var responseBody = await dataResponse.Content.ReadAsStringAsync();
-                if (string.IsNullOrWhiteSpace(responseBody) || responseBody.Contains("\"value\": []"))
+                var dataResult = JsonConvert.DeserializeObject<UserSettingsWrapper>(
+                    await dataResponse.Content.ReadAsStringAsync());
+                var json = dataResponse.Content.ReadAsStringAsync();
+                if (dataResult != null && dataResult.UserSettingsList.Any())
                 {
-                    throw new InvalidDataException(
-                        $"User settings recieved was null for {UserId}."
-                    );
+                    return dataResult.UserSettingsList.First();
                 }
                 else
                 {
-                    return JsonConvert.DeserializeObject<UserSettings>(responseBody);
+                    return new UserSettings();
                 }
             }
             else
@@ -43,17 +56,37 @@ namespace Client.Repositories.Settings
         public async Task<UserSettings> UpdateSettings(string UserId, UserSettings request)
         {
             var client = httpClientFactory.CreateClient("Settings");
-            var dataResponse = await client.PatchAsync($"Id/{UserId}", JsonContent.Create(request));
+            var dataResponse = await client.PutAsJsonAsync($"Id/{UserId}", request, jsonOptions);
             if (dataResponse.IsSuccessStatusCode)
             {
-                var dataResult = JsonConvert.DeserializeObject<UserSettings>(
+                var dataResult = JsonConvert.DeserializeObject<UserSettingsWrapper>(
                     await dataResponse.Content.ReadAsStringAsync());
-                return dataResult;
+                return dataResult.UserSettingsList.First();
             }
             else
             {
                 throw new HttpRequestException(
-                    $"Failed to retrieve settings for user {UserId}. HTTP status {dataResponse.StatusCode}"
+                    $"Failed to retrieve settings for user {UserId}. HTTP status {dataResponse.StatusCode}. {await dataResponse.Content.ReadAsStringAsync()}"
+                );
+
+            }
+        }
+
+        public async Task<UserSettings> CreateSettings(UserSettings request)
+        {
+            var client = httpClientFactory.CreateClient("Settings");
+
+            var dataResponse = await client.PostAsJsonAsync("", request);
+            if (dataResponse.IsSuccessStatusCode)
+            {
+                var dataResult = JsonConvert.DeserializeObject<UserSettingsWrapper>(
+                    await dataResponse.Content.ReadAsStringAsync());
+                return dataResult.UserSettingsList.First();
+            }
+            else
+            {
+                throw new HttpRequestException(
+                    $"Failed to create settings. HTTP status {dataResponse.StatusCode}. {await dataResponse.Content.ReadAsStringAsync()}"
                 );
 
             }

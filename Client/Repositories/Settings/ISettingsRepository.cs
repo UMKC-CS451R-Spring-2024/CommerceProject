@@ -6,5 +6,6 @@ namespace Client.Repositories.Settings
     {
         Task<UserSettings> GetSettings(string UserId);
         Task<UserSettings> UpdateSettings(string UserId, UserSettings request);
+        Task<UserSettings> CreateSettings(UserSettings request);
     }
 }

@@ -8,53 +8,62 @@
         </div>
 
         <div id="settingsInput">
-            @if (!isLoaded)
+            @if (errorThrown)
+            {
+                <p>Error in fetching data.</p>
+            }
+            else if (!isLoaded)
             {
                 <p>Loading settings...</p>
             }
-            else if (errorThrown)
+            else if (Settings.IsNull())
             {
-                <p>Error in fetching data: @errorText</p>
+                <p>Unable to fetch settings</p>
             }
             else
             {
-                <p>Settings loaded successfully</p>
-                // Include form for updating settings or additional content here.
-                @* <EditForm Model="@UserSettings" OnValidSubmit="UpdateSettingsAsync">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+                <EditForm Model="@Settings" OnValidSubmit="UpdateSettingsAsync">
+                    <ChildContent Context="editFormContext">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
 
-            <div>
-            <label>Age:</label>
-            <InputNumber @bind-Value="Settings.Age" />
-            </div>
+                        <div class="d-flex flex-column">
+                            <div class="form-group">
+                                <label for="age">Age:</label>
+                                <InputNumber id="age" class="form-control" @bind-Value="Settings.Age" />
+                            </div>
 
-            <div>
-            <label>Retirement Age:</label>
-            <InputNumber @bind-Value="Settings.RetirementAge" />
-            </div>
+                            <div class="form-group">
+                                <label for="retirementAge">Retirement Age:</label>
+                                <InputNumber id="retirementAge" class="form-control" @bind-Value="Settings.RetirementAge" />
+                            </div>
 
-            <div>
-            <label>Monthly Income:</label>
-            <InputNumber @bind-Value="Settings.MonthlyIncome" />
-            </div>
+                            <div class="form-group">
+                                <label for="income">Monthly Income:</label>
+                                <InputNumber id="income" class="form-control" @bind-Value="Settings.MonthlyIncome" />
+                            </div>
 
-            <div>
-            <label>Savings:</label>
-            <InputNumber @bind-Value="Settings.CurrentSavings" />
-            </div>
+                            <div class="form-group">
+                                <label for="savings">Savings:</label>
+                                <InputNumber id="savings" class="form-control" @bind-Value="Settings.CurrentSavings" />
+                            </div>
 
-            <div>
-            <label>Monthly Contributions:</label>
-            <InputNumber @bind-Value="Settings.MonthlyContributions" />
-            </div>
+                            <div class="form-group">
+                                <label for="contributions">Monthly Contributions:</label>
+                                <InputNumber id="contributions" class="form-control" @bind-Value="Settings.MonthlyContributions" />
+                            </div>
 
-            <button type="submit">Update Settings</button>
-            </EditForm> *@
+                            <button type="submit" class="btn btn-primary">Update Settings</button>
+                        </div>
+                    </ChildContent>
+                </EditForm>
             }
         </div>
     </Authorized>
     <NotAuthorized>
-        <h1>You're logged out.</h1>
+        <h1>
+            You're logged out.
+            <a href="authentication/login">Log in</a>
+        </h1>
     </NotAuthorized>
 </AuthorizeView>

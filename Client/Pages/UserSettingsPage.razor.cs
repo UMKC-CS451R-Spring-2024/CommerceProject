@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Client.Repositories.Settings.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
+using System.Data.Common;
 
 namespace Client.Pages
 {
@@ -31,18 +32,29 @@ namespace Client.Pages
             {
                 isLoaded = false;
                 errorThrown = false;
-                errorText = string.Empty;
                 UserId = user.FindFirst("sub")?.Value;
+
+                if (string.IsNullOrEmpty(UserId))
+                {
+                    errorThrown = true;
+                    errorText = "Unable to fetch user ID.";
+                    return;
+                }
 
                 try
                 {
-                    Settings = await SettingsRepository.GetSettings(UserId);
+                    await FetchOrInitializeSettingsAsync();
                     isLoaded = true;
                 }
-                catch (Exception ex) when (ex is InvalidDataException || ex is HttpRequestException)
+                catch (HttpRequestException)
+                {
+                    await InitializeDefaultSettingsAsync();
+                    isLoaded = true;
+                }
+                catch (Exception e)
                 {
                     errorThrown = true;
-                    errorText = ex.Message;
+                    errorText = e.Message;
                 }
             }
             else
@@ -52,10 +64,28 @@ namespace Client.Pages
             }
         }
 
+        private async Task FetchOrInitializeSettingsAsync()
+        {
+            Settings = await SettingsRepository.GetSettings(UserId);
+
+            if (Settings.IsNull())
+            {
+                await InitializeDefaultSettingsAsync();
+            }
+        }
+
+        private async Task InitializeDefaultSettingsAsync()
+        {
+            Settings = new UserSettings();
+            Settings.SetDefault(UserId);
+
+            Settings = await SettingsRepository.CreateSettings(Settings);
+        }
         protected async Task UpdateSettingsAsync(EditContext editContext)
         {
             if (editContext.Validate())
             {
+                Settings.Id = null;
                 await SettingsRepository.UpdateSettings(UserId, Settings);
             }
         }
