@@ -1,13 +1,15 @@
 ﻿@page "/stocks/{StockTicker}"
+@using Client.Repositories.Stock
+@using Client.Repositories.Stock.Responses
 @using Newtonsoft.Json;
-@inject HttpClient httpClient
+@inject IStockRepository repository
 
 @if (monthlyStockData != null)
 {
     <div class="DailyDataAndHistoricInvestment">
         <div style="margin-left: 400px;">
             <h2>Stock data for @StockTicker from the last year</h2>
-            <Client.Components.MonthlyStockDataGraph MonthlyStockData="monthlyStockData" />
+            <Client.Components.MonthlyStockDataGraph MonthlyStockData="monthlyStockData.MonthlyHighs" />
         </div>
 
         <div style="margin-left: 400px;">
@@ -31,35 +33,38 @@
     string urlForMonthlyStockData;
 
     //Store the stock data into this object
-    private MonthlyStockData? monthlyStockData;
+    private GetMonthlyHighsResponse? monthlyStockData;
 
     //Retrieve the Daily stock data from the API.
     protected override async Task OnInitializedAsync()
     {
+
+        monthlyStockData = await repository.GetMonthlyHighs(StockTicker);
         //Fetch the data from the AlphaVantage API
-        using (HttpClient http = new HttpClient())
-        {
+        // using (HttpClient http = new HttpClient())
+        // {
 
-            //urlForDailyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={StockTicker}&apikey={apiKey}";
-            urlForMonthlyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo";
-            HttpResponseMessage response = await http.GetAsync(urlForMonthlyStockData);
+            // //urlForDailyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={StockTicker}&apikey={apiKey}";
+            // urlForMonthlyStockData = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=IBM&apikey=demo";
+            // HttpResponseMessage response = await http.GetAsync(urlForMonthlyStockData);
 
-            // Ensure the response was successful
-            response.EnsureSuccessStatusCode();
+            // // Ensure the response was successful
+            // response.EnsureSuccessStatusCode();
 
-            // Read the content of the response as a string
-            string responseBody = await response.Content.ReadAsStringAsync();
+            // // Read the content of the response as a string
+            // string responseBody = await response.Content.ReadAsStringAsync();
 
-            // Print the JSON data
-            //Console.WriteLine(responseBody);
+            // // Print the JSON data
+            // //Console.WriteLine(responseBody);
 
-            monthlyStockData = JsonConvert.DeserializeObject<MonthlyStockData>(responseBody);
+            // monthlyStockData = JsonConvert.DeserializeObject<MonthlyStockData>(responseBody);
+            
 
             //Console.WriteLine(Double.Parse(monthlyStockData.MonthlyTimeSeries["2024-03-28"].High));
 
 
 
-        }
+        // }
 
 
     }

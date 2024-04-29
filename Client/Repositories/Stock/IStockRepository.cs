@@ -7,6 +7,7 @@ namespace Client.Repositories.Stock
     {
         Task<GetAnnualReturnsResponse> GetAnnualReturns(string symbol);
         Task<GetDailyHighsResponse> GetDailyHighs(string symbol);
+        Task<GetMonthlyHighsResponse> GetMonthlyHighs(string symbol);
         Task<GetStockMatchesResponse> GetStockMatches(string symbol);
     }
 }
