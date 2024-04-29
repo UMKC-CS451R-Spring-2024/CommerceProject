@@ -1,9 +1,8 @@
-﻿using Api.DataTransferObjects.TimeSeriesMonthlyAdjusted;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace Api.DataTransferObjects.TimeSeriesMonthlyAdjusted
+namespace Api.DataTransferObjects.TimeSeries.Monthly
 {
     public class TimeSeriesMonthlyAdjustedDTO
     {

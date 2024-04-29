@@ -1,8 +1,4 @@
-﻿using Api.DataTransferObjects.TimeSeriesDaily;
-using Api.Repositories;
-using Api.DataTransferObjects.TimeSeriesDaily;
-using Api.DataTransferObjects.TimeSeriesMonthlyAdjusted;
-using Api.Responses;
+﻿using Api.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Api.DataTransferObjects.TimeSeries.Daily;
 
 namespace Api.Repositories
 {

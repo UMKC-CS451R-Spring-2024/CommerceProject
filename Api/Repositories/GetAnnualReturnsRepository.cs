@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 
 using Microsoft.Extensions.Options;
-using Api.DataTransferObjects.TimeSeriesMonthlyAdjusted;
+using Api.DataTransferObjects.TimeSeries.Monthly;
 
 namespace Api.Repositories
 {
