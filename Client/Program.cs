@@ -39,5 +39,6 @@ await builder.Build().RunAsync();
 void AddRepositories(WebAssemblyHostBuilder builder)
 {
     builder.Services.AddSingleton<ISettingsRepository, SettingsRepository>();
-    builder.Services.AddSingleton<IStockRepository, StockStaticARRepository>();
+    builder.Services.AddSingleton<IStockRepository, StockRepository>();
+    //builder.Services.AddSingleton<IStockRepository, StaticValuesStockRepository>();
 }
