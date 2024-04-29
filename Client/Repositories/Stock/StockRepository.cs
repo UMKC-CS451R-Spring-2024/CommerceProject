@@ -28,7 +28,7 @@ namespace Client.Repositories.Stock
             else return new GetAnnualReturnsResponse();
         }
 
-        public async Task<GetStockMatchesResponse> GetStockMatches(string symbol)
+        public virtual async Task<GetStockMatchesResponse> GetStockMatches(string symbol)
         {
             var client = httpClientFactory.CreateClient("Stock");
             var dataResponse = await client.GetAsync($"GetStockMatches?symbol={symbol}");
@@ -41,7 +41,7 @@ namespace Client.Repositories.Stock
             else return new GetStockMatchesResponse();
         }
 
-        public async Task<GetDailyHighsResponse> GetDailyHighs(string symbol)
+        public virtual async Task<GetDailyHighsResponse> GetDailyHighs(string symbol)
         {
             var client = httpClientFactory.CreateClient("Stock");
             var dataResponse = await client.GetAsync($"GetDailyHighs?symbol={symbol}");
@@ -52,6 +52,19 @@ namespace Client.Repositories.Stock
                 return dataResult ?? new GetDailyHighsResponse();
             }
             else return new GetDailyHighsResponse();
+        }
+
+        public virtual async Task<GetMonthlyHighsResponse> GetMonthlyHighs(string symbol)
+        {
+            var client = httpClientFactory.CreateClient("Stock");
+            var dataResponse = await client.GetAsync($"GetMonthlyHighs?symbol={symbol}");
+            if (dataResponse.IsSuccessStatusCode)
+            {
+                var dataResult = JsonConvert.DeserializeObject<GetMonthlyHighsResponse>(
+                    await dataResponse.Content.ReadAsStringAsync());
+                return dataResult ?? new GetMonthlyHighsResponse();
+            }
+            else return new GetMonthlyHighsResponse();
         }
     }
 }

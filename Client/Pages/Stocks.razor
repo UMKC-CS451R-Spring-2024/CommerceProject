@@ -1,9 +1,11 @@
 ﻿@page "/stocks"
 @using System.Text.Json;
 @using System.Net;
+@using Client.Repositories.Stock;
 @using Newtonsoft.Json;
-@inject HttpClient httpClient
+@* @inject HttpClient httpClient *@
 @inject NavigationManager NavManager
+@inject IStockRepository stockRepository
 
 <h1>Search for Stocks</h1>
 
@@ -21,7 +23,7 @@
     <h1>Results</h1>
 
     <div class="SearchResults" style="display: flex; justify-content: space-between;">
-        @foreach (var result in searchResults.BestMatches)
+        @foreach (var result in searchResults)
         {
 
             <div class="card" style="width: 20rem; margin-left: 20px;">
@@ -46,7 +48,7 @@
 
 }
 
-@if(searchResults != null && searchResults.BestMatches.Length == 0)
+@if(searchResults != null && !searchResults.Any())
 {
     <h1>No Reuslts Found</h1>
 }
