@@ -1,0 +1,69 @@
+@page "/settings"
+
+<AuthorizeView>
+    <Authorized>
+        <div id="heading">
+            <p>Hello, @context.User.Identity?.Name!</p>
+            <h1>Your settings:</h1>
+        </div>
+
+        <div id="settingsInput">
+            @if (errorThrown)
+            {
+                <p>Error in fetching data.</p>
+            }
+            else if (!isLoaded)
+            {
+                <p>Loading settings...</p>
+            }
+            else if (Settings.IsNull())
+            {
+                <p>Unable to fetch settings</p>
+            }
+            else
+            {
+                <EditForm Model="@Settings" OnValidSubmit="UpdateSettingsAsync">
+                    <ChildContent Context="editFormContext">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="d-flex flex-column">
+                            <div class="form-group">
+                                <label for="age">Age:</label>
+                                <InputNumber id="age" class="form-control" @bind-Value="Settings.Age" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="retirementAge">Retirement Age:</label>
+                                <InputNumber id="retirementAge" class="form-control" @bind-Value="Settings.RetirementAge" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="income">Monthly Income:</label>
+                                <InputNumber id="income" class="form-control" @bind-Value="Settings.MonthlyIncome" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="savings">Savings:</label>
+                                <InputNumber id="savings" class="form-control" @bind-Value="Settings.CurrentSavings" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contributions">Monthly Contributions:</label>
+                                <InputNumber id="contributions" class="form-control" @bind-Value="Settings.MonthlyContributions" />
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Update Settings</button>
+                        </div>
+                    </ChildContent>
+                </EditForm>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <h1>
+            You're logged out.
+            <a href="authentication/login">Log in</a>
+        </h1>
+    </NotAuthorized>
+</AuthorizeView>

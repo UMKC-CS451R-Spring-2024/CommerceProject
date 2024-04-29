@@ -365,3 +365,14 @@ FodyWeavers.xsd
 .vscode/launch.json
 .vscode/settings.json
 /API/local.settings.json
+.devcontainer/devcontainer.json
+.devcontainer/docker-compose.yml
+.devcontainer/Dockerfile
+.devcontainer/on-create.sh
+.mono/registry/CurrentUser/software/microsoft/csdevkit/telemetry/persistentpropertybag/values.xml
+.mono/registry/CurrentUser/software/microsoft/csdevkit/telemetry/persistentpropertybag/microsoft.visualstudio.code.servicehost/values.xml
+.mono/registry/CurrentUser/software/microsoft/sqmclient/values.xml
+.vscode/extensions.json
+.vscode/tasks.json
+.mono/registry/CurrentUser/software/microsoft/csdevkit/v1/pids/57795_133585785461004294/values.xml
+.mono/registry/CurrentUser/software/microsoft/csdevkit/v1/pids/4600_133586170854305906/values.xml

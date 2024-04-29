@@ -5,89 +5,90 @@
 <h3>Retirement Calculator</h3>
 
 <EditForm Model="@data" OnValidSubmit="@CalculateRetirement">
-    <DataAnnotationsValidator />
+	<DataAnnotationsValidator />
 
-    <div class="d-flex flex-row mb-2">
-	<div class="d-flex flex-column m-auto">
-	    <h4>Retirement Information</h4>
-	    
-	    <div class="form-group">
-		<label for="age">Age:</label>
-		<InputNumber id="age" class="form-control" @bind-Value="data.Age" />
-		<ValidationMessage For="@(() => data.Age)" />
-	    </div>
+	<div class="d-flex flex-row mb-2">
+		<div class="d-flex flex-column m-auto">
+			<h4>Retirement Information</h4>
 
-	    <div class="form-group">
-		<label for="savings">Savings:</label>
-		<InputNumber id="savings" class="form-control" @bind-Value="data.CurrentSavings" />
-		<ValidationMessage For="@(() => data.CurrentSavings)" />
-	    </div>
+			<div class="form-group">
+				<label for="age">Age:</label>
+				<InputNumber id="age" class="form-control" @bind-Value="data.Age" />
+				<ValidationMessage For="@(() => data.Age)" />
+			</div>
 
-	    <div class="form-group">
-		<label for="income">Monthly Income:</label>
-		<InputNumber id="income" class="form-control" @bind-Value="data.MonthlyIncome" />
-		<ValidationMessage For="@(() => data.MonthlyIncome)" />
-	    </div>
+			<div class="form-group">
+				<label for="savings">Savings:</label>
+				<InputNumber id="savings" class="form-control" @bind-Value="data.CurrentSavings" />
+				<ValidationMessage For="@(() => data.CurrentSavings)" />
+			</div>
 
-	    <div class="form-group">
-		<label for="contribution">Monthly Contribution:</label>
-		<InputNumber id="contribution" class="form-control" @bind-Value="data.MonthlyContribution" />
-		<ValidationMessage For="@(() => data.MonthlyContribution)" />
-	    </div>
+			<div class="form-group">
+				<label for="income">Monthly Income:</label>
+				<InputNumber id="income" class="form-control" @bind-Value="data.MonthlyIncome" />
+				<ValidationMessage For="@(() => data.MonthlyIncome)" />
+			</div>
 
-	    <div class="form-group">
-		<label for="budget">Retirement Monthly Budget:</label>
-		<InputNumber id="budget" class="form-control" @bind-Value="data.MonthlyBudget" />
-		<ValidationMessage For="@(() => data.MonthlyBudget)" />
-	    </div>
-	</div>
-	
-	<div class="d-flex flex-column m-auto">
-	    <h4>Advanced Information</h4>
+			<div class="form-group">
+				<label for="contribution">Monthly Contribution:</label>
+				<InputNumber id="contribution" class="form-control" @bind-Value="data.MonthlyContribution" />
+				<ValidationMessage For="@(() => data.MonthlyContribution)" />
+			</div>
 
-	    <div class="form-group">
-		<label for="retAge">Retirement Age:</label>
-		<InputNumber id="retAge" class="form-control" @bind-Value="data.RetirementAge" />
-		<ValidationMessage For="@(() => data.RetirementAge)" />
-	    </div>
+			<div class="form-group">
+				<label for="budget">Retirement Monthly Budget:</label>
+				<InputNumber id="budget" class="form-control" @bind-Value="data.MonthlyBudget" />
+				<ValidationMessage For="@(() => data.MonthlyBudget)" />
+			</div>
+		</div>
 
-	    <div class="form-group">
-		<label for="lifeExpectancy">Life Expectancy:</label>
-		<InputNumber id="lifeExpectancy" class="form-control" @bind-Value="data.LifeExpectancy" />
-		<ValidationMessage For="@(() => data.LifeExpectancy)" />
-	    </div>
+		<div class="d-flex flex-column m-auto">
+			<h4>Advanced Information</h4>
 
-	    <div class="form-group">
-		<label for="return">Pre-Retirement Return Rate:</label>
-		<InputNumber id="return" class="form-control" @bind-Value="data.ReturnRate" />
-		<ValidationMessage For="@(() => data.ReturnRate)" />
-	    </div>
+			<div class="form-group">
+				<label for="retAge">Retirement Age:</label>
+				<InputNumber id="retAge" class="form-control" @bind-Value="data.RetirementAge" />
+				<ValidationMessage For="@(() => data.RetirementAge)" />
+			</div>
 
-	    <div class="form-group">
-		<label for="retReturn">Post-Retirement Return Rate:</label>
-		<InputNumber id="retReturn" class="form-control" @bind-Value="data.RetirementReturnRate" />
-		<ValidationMessage For="@(() => data.RetirementReturnRate)" />
-	    </div>
+			<div class="form-group">
+				<label for="lifeExpectancy">Life Expectancy:</label>
+				<InputNumber id="lifeExpectancy" class="form-control" @bind-Value="data.LifeExpectancy" />
+				<ValidationMessage For="@(() => data.LifeExpectancy)" />
+			</div>
 
-	    <div class="form-group">
-		<label for="inflation">Inflation Rate:</label>
-		<InputNumber id="inflation" class="form-control" @bind-Value="data.InflationRate" />
-		<ValidationMessage For="@(() => data.InflationRate)" />
-	    </div>
+			<div class="form-group">
+				<label for="return">Pre-Retirement Return Rate:</label>
+				<InputNumber id="return" class="form-control" @bind-Value="data.ReturnRate" />
+				<ValidationMessage For="@(() => data.ReturnRate)" />
+			</div>
 
-	    <!-- <div class="form-group">
+			<div class="form-group">
+				<label for="retReturn">Post-Retirement Return Rate:</label>
+				<InputNumber id="retReturn" class="form-control" @bind-Value="data.RetirementReturnRate" />
+				<ValidationMessage For="@(() => data.RetirementReturnRate)" />
+			</div>
+
+			<div class="form-group">
+				<label for="inflation">Inflation Rate:</label>
+				<InputNumber id="inflation" class="form-control" @bind-Value="data.InflationRate" />
+				<ValidationMessage For="@(() => data.InflationRate)" />
+			</div>
+
+			<!-- <div class="form-group">
 		 <label for="increase">Income Increase Rate:</label>
 		 <InputNumber id="increase" class="form-control" @bind-Value="data.IncomeIncreaseRate" />
 		 <ValidationMessage For="@(() => data.IncomeIncreaseRate)" />
 		 </div> -->
+		</div>
 	</div>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Calculate</button>
+	<button type="submit" class="btn btn-primary">Calculate</button>
 </EditForm>
 
-@if (result != null) {
-    <div class="result m-auto">
+@if (result != null)
+{
+	<div class="result m-auto">
 	<h4>Result:</h4>
 	<h5>(All numbers are normalized to today's value)</h5>
 	<p>What you'll have $@result.RetirementValue.ToString("N2")</p>
@@ -95,8 +96,7 @@
 	<p> What you'll need $@result.NeededAmount.ToString("N2")</p>
 	<p> What you'll need to contribute $@result.NeededContribution.ToString("N2")</p>
 
-	<RetirementGraph ActualData="@result.ActualData" NeededData="@result.NeededData" Age="@data.Age" LifeExpectancy="@data.LifeExpectancy" />
-    </div>
+	<RetirementGraph ActualData="@result.ActualData" NeededData="@result.NeededData" Age="@data.Age"
+		LifeExpectancy="@data.LifeExpectancy" />
+</div>
 }
-
-
