@@ -1,11 +1,57 @@
+using Client.Repositories.Settings;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using static Client.Pages.Data.Retirement.Retirement;
 
 namespace Client.Pages
 {
     public partial class Retirement
     {
+        [Inject]
+        public AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+        [Inject]
+        public ISettingsRepository SettingsRepository { get; set; }
+
+        private string? UserId;
         private RetirementData data = new RetirementData();
         private RetirementResult result;
+
+        protected override async Task OnInitializedAsync()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            data = new RetirementData();
+
+            if (user.Identity.IsAuthenticated)
+            {
+                UserId = user.FindFirst("sub")?.Value;
+
+                try
+                {
+                    await FetchSettingsAsync();
+                }
+                catch (System.Exception)
+                {
+                    
+                }
+            }
+        }
+
+        private async Task FetchSettingsAsync()
+        {
+            var Settings = await SettingsRepository.GetSettings(UserId);
+
+            if (!Settings.IsNull() && !Settings.Equals(null))
+            {
+                data.Age = (int)Settings.Age;
+                data.RetirementAge = (int)Settings.RetirementAge;
+                data.MonthlyIncome = (double)Settings.MonthlyIncome;
+                data.CurrentSavings = (double)Settings.CurrentSavings;
+                data.MonthlyContribution = (double)Settings.MonthlyContributions;
+            }
+        }
+
         private List<double> GetData(double payment)
         {
             List<double> dataset = new List<double>
