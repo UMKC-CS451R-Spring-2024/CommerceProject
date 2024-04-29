@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Api.DataTransferObjects.TimeSeriesDaily
+namespace Api.DataTransferObjects.TimeSeries.Daily
 {
     public class DailyStockData
     {

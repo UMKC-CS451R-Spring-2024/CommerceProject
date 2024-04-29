@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Api.DataTransferObjects.TimeSeriesDaily
+namespace Api.DataTransferObjects.TimeSeries.Monthly
 {
-    public class TimeSeriesDaily
+    public class MonthlyData
     {
         [JsonProperty("1. open")]
         public double Open { get; set; }
@@ -23,5 +23,7 @@ namespace Api.DataTransferObjects.TimeSeriesDaily
 
         [JsonProperty("5. volume")]
         public double Volume { get; set; }
+
     }
 }
+

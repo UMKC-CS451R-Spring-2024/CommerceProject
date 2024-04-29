@@ -1,8 +1,13 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Api.DataTransferObjects.TimeSeriesMonthlyAdjusted
+namespace Api.DataTransferObjects.TimeSeries.Daily
 {
-    public class MonthlyAdjustedData
+    public class TimeSeriesDaily
     {
         [JsonProperty("1. open")]
         public double Open { get; set; }
@@ -16,13 +21,7 @@ namespace Api.DataTransferObjects.TimeSeriesMonthlyAdjusted
         [JsonProperty("4. close")]
         public double Close { get; set; }
 
-        [JsonProperty("5. adjusted close")]
-        public double AdjustedClose { get; set; }
-
-        [JsonProperty("6. volume")]
+        [JsonProperty("5. volume")]
         public double Volume { get; set; }
-
-        [JsonProperty("7. dividend amount")]
-        public double DividendAmount { get; set; }
     }
 }
