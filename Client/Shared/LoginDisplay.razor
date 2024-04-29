@@ -8,6 +8,7 @@
     <Authorized>
         Hello, @context.User.Identity?.Name!
         <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>
+        <a href="settings"><span class="oi oi-cog" aria-hidden="true" /></a>
     </Authorized>
     <NotAuthorized>
         <a href="authentication/login">Log in</a>
