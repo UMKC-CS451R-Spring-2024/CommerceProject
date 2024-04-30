@@ -5,6 +5,6 @@ namespace Api.Repositories
 {
     public interface IGetStockMatchesRepository
     {
-        Task<DailyHighsSeriesResults> GetStockMatches(string symbol);
+        Task<StockSearchResults> GetStockMatches(string symbol);
     }
 }

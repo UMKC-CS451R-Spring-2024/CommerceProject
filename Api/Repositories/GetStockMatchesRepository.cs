@@ -20,17 +20,25 @@ namespace Api.Repositories
             //_settings = options.Value;
         }
 
-        public async Task<DailyHighsSeriesResults> GetStockMatches(string symbol)
+        public async Task<StockSearchResults> GetStockMatches(string symbol)
         {
             var client = _httpClientFactory.CreateClient("alphavantage");
             var dataResponse = await client.GetAsync($"query?function=Symbol_Search&keywords={symbol}&apikey=DHS96ZUQ1B4IVPO2");
             if (dataResponse.IsSuccessStatusCode)
             {
-                var results = await dataResponse.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<DailyHighsSeriesResults>(results)
-                    ?? new DailyHighsSeriesResults();
+                try
+                {
+                    var results = await dataResponse.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<StockSearchResults>(results)
+                        ?? new StockSearchResults();
+
+                }
+                catch
+                {
+                    return new StockSearchResults();
+                }
             }
-            else return new DailyHighsSeriesResults();
+            else return new StockSearchResults();
         }
     }
 }

@@ -40,9 +40,16 @@ namespace Api.Repositories
             var dataResponse = await client.GetAsync($"query?function=TIME_SERIES_MONTHLY&symbol={symbol}&apikey=DHS96ZUQ1B4IVPO2");
             if (dataResponse.IsSuccessStatusCode)
             {
-                var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyDTO>(
-                    await dataResponse.Content.ReadAsStringAsync())?.MonthlyTimeSeries.OrderBy(x => x.Key);
-                return dataResult;
+                try
+                {
+                    var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyDTO>(
+                        await dataResponse.Content.ReadAsStringAsync())?.MonthlyTimeSeries.OrderBy(x => x.Key);
+                    return dataResult;
+                }
+                catch
+                {
+                    return Enumerable.Empty<KeyValuePair<DateOnly, MonthlyData>>().OrderBy(x => 1);
+                }
             }
             else return Enumerable.Empty<KeyValuePair<DateOnly, MonthlyData>>().OrderBy(x => 1);
         }

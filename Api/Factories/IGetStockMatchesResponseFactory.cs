@@ -5,6 +5,6 @@ namespace Api.Factories
 {
     public interface IGetStockMatchesResponseFactory
     {
-        GetStockMatchesResponse CreateStockInformation(DailyHighsSeriesResults stockSearchResults);
+        GetStockMatchesResponse CreateStockInformation(StockSearchResults stockSearchResults);
     }
 }
