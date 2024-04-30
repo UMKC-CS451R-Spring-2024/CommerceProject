@@ -175,7 +175,7 @@
 
         // var labels = GetXAxisLabels();
         var datasets = new List<IChartDataset>();
-        var monthlyHighs = MonthlyStockData.Values.ToList();
+        var monthlyHighs = MonthlyStockData.Values.ToList().GetRange(0,12);
 
         var dataset1 = new LineChartDataset()
             {
