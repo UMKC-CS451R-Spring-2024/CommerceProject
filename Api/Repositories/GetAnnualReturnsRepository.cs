@@ -58,9 +58,18 @@ namespace Api.Repositories
             var dataResponse = await client.GetAsync($"query?function=TIME_SERIES_MONTHLY_ADJUSTED&symbol={symbol}&apikey=DHS96ZUQ1B4IVPO2");
             if (dataResponse.IsSuccessStatusCode)
             {
-                var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyAdjustedDTO>(
-                    await dataResponse.Content.ReadAsStringAsync())?.MonthlyAdjustedTimeSeries.OrderBy(x => x.Key);
-                return dataResult;
+                try
+                {
+                    var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyAdjustedDTO>(
+                        await dataResponse.Content.ReadAsStringAsync())?.MonthlyAdjustedTimeSeries;
+                    if (dataResult != null)
+                        return dataResult.OrderBy(x => x.Key);
+                    else return Enumerable.Empty<KeyValuePair<DateOnly, MonthlyAdjustedData>>().OrderBy(x => x.Key);                   
+                }
+                catch
+                {
+                    return Enumerable.Empty<KeyValuePair<DateOnly, MonthlyAdjustedData>>().OrderBy(x => x.Key);
+                }
             }
             else return Enumerable.Empty<KeyValuePair<DateOnly, MonthlyAdjustedData>>().OrderBy(x => 1);
         }

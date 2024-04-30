@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Api.DataTransferObjects.SymbolSearch
 {
-    public class DailyHighsSeriesResults
+    public class StockSearchResults
     {
-        public DailyHighsSeriesResults()
+        public StockSearchResults()
         {
             Results = Enumerable.Empty<StockSearchResult>();
         }

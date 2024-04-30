@@ -6,7 +6,7 @@ namespace Api.Factories
 {
     public class GetStockMatchesResponseFactory : IGetStockMatchesResponseFactory
     {
-        public GetStockMatchesResponse CreateStockInformation(DailyHighsSeriesResults stockSearchResults)
+        public GetStockMatchesResponse CreateStockInformation(StockSearchResults stockSearchResults)
         {
             return new GetStockMatchesResponse
             {
