@@ -76,7 +76,7 @@ namespace Client.Repositories.Settings
         {
             var client = httpClientFactory.CreateClient("Settings");
 
-            var dataResponse = await client.PostAsJsonAsync("", request);
+            var dataResponse = await client.PostAsJsonAsync("", request, jsonOptions);
             if (dataResponse.IsSuccessStatusCode)
             {
                 var dataResult = JsonConvert.DeserializeObject<UserSettingsWrapper>(
