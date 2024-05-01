@@ -14,7 +14,7 @@ namespace Client.Repositories.Stock
         public override async Task<GetAnnualReturnsResponse> GetAnnualReturns(string symbol)
         {
             var response = new GetAnnualReturnsResponse();
-            response.Symbol = "IBM";
+            response.Symbol = symbol;
             response.AnnualReturns.Add(1999, 0);
             response.AnnualReturns.Add(2000, -20.839185237004);
             response.AnnualReturns.Add(2001, 43.0008634801849);
@@ -45,47 +45,47 @@ namespace Client.Repositories.Stock
             return response;
         }
 
-        public override async Task<GetMonthlyHighsResponse> GetMonthlyHighs(string symbol)
-        {
-            var response = new GetMonthlyHighsResponse();
-            response.Symbol = "IBM";
-            response.MonthlyHighs .Add(new DateOnly(2023, 01, 20), 0);
-            response.MonthlyHighs .Add(new DateOnly(2023, 02, 20), -20.839185237004);
-            response.MonthlyHighs .Add(new DateOnly(2023, 03, 20), 43.0008634801849);
-            response.MonthlyHighs .Add(new DateOnly(2023, 04, 20), -35.470530331382);
-            response.MonthlyHighs .Add(new DateOnly(2023, 05, 20), 20.4958939493627);
-            response.MonthlyHighs .Add(new DateOnly(2023, 06, 20), 7.19140752185634);
-            response.MonthlyHighs .Add(new DateOnly(2023, 07, 20), -15.831476551725);
-            response.MonthlyHighs .Add(new DateOnly(2023, 08, 20), 19.7690786907734);
-            response.MonthlyHighs .Add(new DateOnly(2023, 09, 20), 12.8402215147823);
-            response.MonthlyHighs .Add(new DateOnly(2023, 10, 20), -20.764468121453);
-            response.MonthlyHighs .Add(new DateOnly(2023, 11, 20), 58.6077189398284);
-            response.MonthlyHighs .Add(new DateOnly(2023, 12, 20), 14.2831879195959);
+        //public override async Task<GetMonthlyHighsResponse> GetMonthlyHighs(string symbol)
+        //{
+        //    var response = new GetMonthlyHighsResponse();
+        //    response.Symbol = symbol;
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 01, 20), 0);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 02, 20), -20.839185237004);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 03, 20), 43.0008634801849);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 04, 20), -35.470530331382);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 05, 20), 20.4958939493627);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 06, 20), 7.19140752185634);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 07, 20), -15.831476551725);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 08, 20), 19.7690786907734);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 09, 20), 12.8402215147823);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 10, 20), -20.764468121453);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 11, 20), 58.6077189398284);
+        //    response.MonthlyHighs .Add(new DateOnly(2023, 12, 20), 14.2831879195959);
           
 
-            return response;
-        }
+        //    return response;
+        //}
 
-        public override async Task<GetStockMatchesResponse> GetStockMatches(string symbol)
-        {
-            return new GetStockMatchesResponse
-            {
-                StockMatches = new List<StockMatch>()
-                {
-                    new StockMatch
-                    {
-                        Symbol = "IBM",
-                        Name = "sadkfja",
-                        Type = "asjdkf",
-                        Region = "United States",
-                        MarketOpen = "09:30",
-                        MarketClose = "16:00",
-                        Timezone = "UTC-04",
-                        Currency = "USD",
-                        MatchScore = "1.0"
-                    }
-                }
-            };
-        }
+        //public override async Task<GetStockMatchesResponse> GetStockMatches(string symbol)
+        //{
+        //    return new GetStockMatchesResponse
+        //    {
+        //        StockMatches = new List<StockMatch>()
+        //        {
+        //            new StockMatch
+        //            {
+        //                Symbol = "IBM",
+        //                Name = "sadkfja",
+        //                Type = "asjdkf",
+        //                Region = "United States",
+        //                MarketOpen = "09:30",
+        //                MarketClose = "16:00",
+        //                Timezone = "UTC-04",
+        //                Currency = "USD",
+        //                MatchScore = "1.0"
+        //            }
+        //        }
+        //    };
+        //}
     }
 }
