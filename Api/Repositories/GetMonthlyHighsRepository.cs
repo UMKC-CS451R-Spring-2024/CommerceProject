@@ -43,7 +43,9 @@ namespace Api.Repositories
                 try
                 {
                     var dataResult = JsonConvert.DeserializeObject<TimeSeriesMonthlyDTO>(
-                        await dataResponse.Content.ReadAsStringAsync())?.MonthlyTimeSeries.OrderBy(x => x.Key);
+                        await dataResponse.Content.ReadAsStringAsync())?.MonthlyTimeSeries
+                        .Where(x => x.Key > DateOnly.FromDateTime(DateTime.Now.AddYears(-1)))
+                        .OrderBy(x => x.Key);
                     return dataResult;
                 }
                 catch
