@@ -7,8 +7,6 @@
 @using Newtonsoft.Json
 @using System
 
-@* @inject IStockRepository stockRepository *@
-
 <EditForm Model="@this" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -33,8 +31,6 @@
     private List<string>? labels;
     private List<double> dataValues { get; set; } = new List<double>();
 
-    // [Parameter]
-    // public string StockTicker { get; set; } // Default stock ticker to change
     [Parameter]
     public IDictionary<int, double> AnnualReturns { get; set; }
 
@@ -117,6 +113,7 @@
         if (chartData.Datasets.FirstOrDefault() is LineChartDataset lineChartDataset)
         {
             lineChartDataset.Data = CalculateReturns(initialInvestment, AnnualReturns).Values.ToList();
+            lineChartOptions.Plugins.Title.Text = $"Growth of ${initialInvestment}";
             await lineChart.UpdateAsync(chartData, lineChartOptions);
         }
         else
@@ -129,15 +126,6 @@
     {
         if (firstRender)
         {
-            if (lineChart == null)
-                Console.WriteLine("Historic lineChart null firstRender");
-            else Console.WriteLine("Historic lineChart not null firstRender");
-            if (chartData == null)
-                Console.WriteLine("Historic ChartData null firstRender");
-            else Console.WriteLine("Historic ChartData not null firstRender");
-            if (lineChartOptions == null)
-                Console.WriteLine("Historic lineChartOptions null firstRender");
-            else Console.WriteLine("Historic lineChartOptions not null firstRender");
             await lineChart.InitializeAsync(chartData, lineChartOptions);
             await Task.Delay(100);
         }
