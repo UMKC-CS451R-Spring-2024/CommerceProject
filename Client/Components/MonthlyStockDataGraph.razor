@@ -217,6 +217,12 @@
     {
         if (firstRender)
         {
+            if (chartData == null)
+                Console.WriteLine("Monthly ChartData null firstRender");
+            else Console.WriteLine("Monthly ChartData not null firstRender");
+            if (lineChartOptions == null)
+                Console.WriteLine("Monthly lineChartOptions null firstRender");
+            else Console.WriteLine("Monthly lineChartOptions not null firstRender");
             await lineChart.InitializeAsync(chartData, lineChartOptions);
         }
         await base.OnAfterRenderAsync(firstRender);
