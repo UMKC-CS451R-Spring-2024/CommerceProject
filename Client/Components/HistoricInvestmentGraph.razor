@@ -28,8 +28,8 @@
 
 @code {
     private LineChart lineChart = default!;
-    private LineChartOptions lineChartOptions = default!;
-    private ChartData chartData = default!;
+    private LineChartOptions lineChartOptions = new LineChartOptions();
+    private ChartData chartData = new ChartData();
     private List<string>? labels;
     private List<double> dataValues { get; set; } = new List<double>();
 
