@@ -7,7 +7,7 @@
 @using Newtonsoft.Json
 @using System
 
-@inject IStockRepository stockRepository
+@* @inject IStockRepository stockRepository *@
 
 <EditForm Model="@this" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -28,56 +28,34 @@
 
 @code {
     private LineChart lineChart = default!;
-    private LineChartOptions lineChartOptions = new LineChartOptions();
-    private ChartData chartData = new ChartData();
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
     private List<string>? labels;
     private List<double> dataValues { get; set; } = new List<double>();
 
+    // [Parameter]
+    // public string StockTicker { get; set; } // Default stock ticker to change
     [Parameter]
-    public string StockTicker { get; set; } // Default stock ticker to change
+    public IDictionary<int, double> AnnualReturns { get; set; }
 
     [Required(ErrorMessage = "Initial investment is required")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Initial investment must be greater than $0.")]
     public double initialInvestment { get; set; } = 10000; // Default initial investment value
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var stockData = await stockRepository.GetAnnualReturns(StockTicker);
-        InitializeChartData(stockData.AnnualReturns, StockTicker);
+        InitializeChartData(AnnualReturns);
     }
 
-    private void InitializeChartData(Dictionary<int, double> annualReturns, string symbol)
+    private void InitializeChartData(IDictionary<int, double> annualReturns)
     {
-        // Console.WriteLine($"Symbol: {symbol}");
-        // foreach (var ar in annualReturns)
-        // {
-        //     Console.WriteLine(ar);
-        // }
         var colors = ColorBuilder.CategoricalTwelveColors;
         var calculatedReturns = CalculateReturns(initialInvestment, annualReturns);
-        // Console.WriteLine($"CalculatedReturns");
-        // foreach (var cr in calculatedReturns)
-        // {
-        //     Console.WriteLine(cr);
-        // }
-        labels = calculatedReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
-        // Console.WriteLine($"labels");
-        // foreach (var label in labels)
-        // {
-        //     Console.WriteLine(label);
-        // }
-
-        dataValues = calculatedReturns.Values.ToList();
-        // Console.WriteLine($"dataValues");
-        // foreach (var dv in dataValues)
-        // {
-        //     Console.WriteLine(dv);
-        // }
 
         var dataset = new LineChartDataset()
             {
                 Label = "Investment Growth",
-                Data = dataValues,
+                Data = calculatedReturns.Values.ToList(),
                 BackgroundColor = new List<string> { colors[0] },
                 BorderColor = new List<string> { colors[0] },
                 BorderWidth = new List<double> { 2 },
@@ -90,7 +68,7 @@
 
         chartData = new ChartData
             {
-                Labels = labels,
+                Labels = calculatedReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList(),
                 Datasets = new List<IChartDataset> { dataset }
             };
 
@@ -110,12 +88,12 @@
         };
     }
 
-    private Dictionary<int, double> CalculateReturns(double initialInvestment, Dictionary<int, double> annualReturns)
+    private IDictionary<int, double> CalculateReturns(double initialInvestment, IDictionary<int, double> annualReturns)
     {
         var calculatedReturns = new Dictionary<int, double>();
         double currentAmount = initialInvestment;
 
-        foreach (var year in annualReturns.Keys.OrderBy(y => y))
+        foreach (var year in annualReturns.Keys)
         {
             currentAmount *= 1 + annualReturns[year] / 100;
             calculatedReturns.Add(year, currentAmount);
@@ -135,14 +113,10 @@
     private async Task UpdateChartDataAsync()
     {
         // Since this method is meant to update chart data, let's fetch the latest returns
-        var stockData = await stockRepository.GetAnnualReturns(StockTicker);
-        var calculatedReturns = CalculateReturns(initialInvestment, stockData.AnnualReturns);
-        dataValues = calculatedReturns.Values.ToList();
-
         // Update the chart with the new data
         if (chartData.Datasets.FirstOrDefault() is LineChartDataset lineChartDataset)
         {
-            lineChartDataset.Data = dataValues;
+            lineChartDataset.Data = CalculateReturns(initialInvestment, AnnualReturns).Values.ToList();
             await lineChart.UpdateAsync(chartData, lineChartOptions);
         }
         else
@@ -169,69 +143,6 @@
         }
         await base.OnAfterRenderAsync(firstRender);
     }
+
+
 }
-
-    @*
-    private async Task UpdateChartDataAsync()
-    {
-        // Retrieve the mock annual returns for the chart update
-        var mockReturns = GetMockAnnualReturns();
-        var calculatedReturns = CalculateReturns(initialInvestment, mockReturns);
-        dataValues = calculatedReturns.Values.ToList();
-
-        if (chartData.Datasets.First() is LineChartDataset lineChartDataset)
-        {
-            lineChartDataset.Data = dataValues;
-            await lineChart.UpdateAsync(chartData, lineChartOptions);
-        }
-        else
-        {
-            throw new InvalidOperationException("Dataset is not of the expected type.");
-        }
-    }
-
-        protected override void OnInitialized()
-    {
-        var colors = ColorBuilder.CategoricalTwelveColors;
-        var mockReturns = GetMockAnnualReturns();
-        var calculatedReturns = CalculateReturns(initialInvestment, mockReturns);
-        labels = calculatedReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
-        dataValues = calculatedReturns.Values.ToList();
-
-        var dataset = new LineChartDataset()
-            {
-                Label = "Investment Growth",
-                Data = dataValues,
-                BackgroundColor = new List<string> { colors[0] }, // Dark green
-                BorderColor = new List<string> { colors[0] },
-                BorderWidth = new List<double> { 2 },
-                HoverBorderWidth = new List<double> { 4 },
-                PointBackgroundColor = new List<string> { colors[0] },
-                PointRadius = new List<int> { 3 },
-                PointHoverRadius = new List<int> { 5 },
-                Fill = false
-            };
-
-        chartData = new ChartData
-            {
-                Labels = labels,
-                Datasets = new List<IChartDataset> { dataset }
-            };
-
-        lineChartOptions = new LineChartOptions();
-        {
-            lineChartOptions.Responsive = true;
-            lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
-
-            lineChartOptions.Scales.X!.Title!.Text = "Year";
-            lineChartOptions.Scales.X!.Title!.Display = true;
-
-            lineChartOptions.Scales.Y!.Title!.Text = "Cumulative Amount ($)";
-            lineChartOptions.Scales.Y!.Title!.Display = true;
-
-            lineChartOptions.Plugins.Title!.Text = $"Growth of ${initialInvestment}";
-            lineChartOptions.Plugins.Title.Display = true;
-        };
-    }
-    *@
-

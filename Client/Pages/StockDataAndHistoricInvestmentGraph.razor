@@ -14,7 +14,7 @@
 
         <div style="margin-left: 400px;">
             <h2>Historic Returns for @StockTicker</h2>
-            <Client.Components.HistoricInvestmentGraph StockTicker=@StockTicker />
+            <Client.Components.HistoricInvestmentGraph AnnualReturns="annualReturns.AnnualReturns" />
         </div>
 
 
@@ -34,12 +34,15 @@
 
     //Store the stock data into this object
     private GetMonthlyHighsResponse? monthlyStockData;
+    private GetAnnualReturnsResponse? annualReturns;
 
     //Retrieve the Daily stock data from the API.
     protected override async Task OnInitializedAsync()
     {
 
         monthlyStockData = await repository.GetMonthlyHighs(StockTicker);
+        annualReturns = await repository.GetAnnualReturns(StockTicker);
+
         //Fetch the data from the AlphaVantage API
         // using (HttpClient http = new HttpClient())
         // {
