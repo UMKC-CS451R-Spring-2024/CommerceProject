@@ -155,6 +155,12 @@
     {
         if (firstRender)
         {
+            if (chartData == null)
+                Console.WriteLine("ChartData null firstRender");
+            else Console.WriteLine("ChartData not null firstRender");
+            if (lineChartOptions == null)
+                Console.WriteLine("lineChartOptions null firstRender");
+            else Console.WriteLine("lineChartOptions not null firstRender");
             await lineChart.InitializeAsync(chartData, lineChartOptions);
             await Task.Delay(100);
         }
