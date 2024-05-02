@@ -135,7 +135,9 @@
         if (firstRender)
         {
             await lineChart.InitializeAsync(chartData, lineChartOptions);
+            await Task.Delay(100);
         }
+        await base.OnAfterRenderAsync(firstRender);
     }
 }
 
