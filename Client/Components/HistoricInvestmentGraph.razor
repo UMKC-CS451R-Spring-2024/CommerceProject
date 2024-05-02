@@ -34,7 +34,7 @@
     private List<double> dataValues { get; set; } = new List<double>();
 
     [Parameter]
-    public string StockTicker { get; set; } = "IBM"; // Default stock ticker to change
+    public string StockTicker { get; set; } // Default stock ticker to change
 
     [Required(ErrorMessage = "Initial investment is required")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Initial investment must be greater than $0.")]
@@ -48,10 +48,31 @@
 
     private void InitializeChartData(Dictionary<int, double> annualReturns, string symbol)
     {
+        Console.WriteLine($"Symbol: {symbol}");
+        foreach (var ar in annualReturns)
+        {
+            Console.WriteLine(ar);
+        }
         var colors = ColorBuilder.CategoricalTwelveColors;
         var calculatedReturns = CalculateReturns(initialInvestment, annualReturns);
+        Console.WriteLine($"CalculatedReturns");
+        foreach (var cr in calculatedReturns)
+        {
+            Console.WriteLine(cr);
+        }
         labels = calculatedReturns.Keys.OrderBy(year => year).Select(year => year.ToString()).ToList();
+        Console.WriteLine($"labels");
+        foreach (var label in labels)
+        {
+            Console.WriteLine(label);
+        }
+
         dataValues = calculatedReturns.Values.ToList();
+        Console.WriteLine($"dataValues");
+        foreach (var dv in dataValues)
+        {
+            Console.WriteLine(dv);
+        }
 
         var dataset = new LineChartDataset()
             {
