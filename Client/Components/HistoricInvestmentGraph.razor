@@ -34,7 +34,7 @@
     private List<double> dataValues { get; set; } = new List<double>();
 
     [Parameter]
-    public string StockTicker { get; set; }; // Default stock ticker to change
+    public string StockTicker { get; set; } // Default stock ticker to change
 
     [Required(ErrorMessage = "Initial investment is required")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Initial investment must be greater than $0.")]
