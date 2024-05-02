@@ -155,6 +155,9 @@
     {
         if (firstRender)
         {
+            if (lineChart == null)
+                Console.WriteLine("Historic lineChart null firstRender");
+            else Console.WriteLine("Historic lineChart not null firstRender");
             if (chartData == null)
                 Console.WriteLine("Historic ChartData null firstRender");
             else Console.WriteLine("Historic ChartData not null firstRender");
